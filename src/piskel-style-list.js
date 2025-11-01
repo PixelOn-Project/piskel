@@ -29,6 +29,7 @@
   "css/toolbox.css",
   "css/toolbox-layers-list.css",
   "css/toolbox-palettes-list.css",
+  "css/ai-generator.css",
   "css/toolbox-animated-preview.css",
   "css/transformations.css",
   "css/spectrum/spectrum.css",
