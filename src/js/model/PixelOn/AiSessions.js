@@ -16,6 +16,26 @@
      * 이 세션에 속한 모든 생성 시도(Dialog)의 목록
      * @type {Array<pskl.model.PixelOn.Dialog>}
      */
-    this.Dialogs ={};
+    this.Dialogs=[];
+  };
+  // Dialog 추가/조회 메서드
+  ns.AiSession.prototype.addDialog = function (dialog) {
+    this.Dialogs.push(dialog);
+  };
+  ns.AiSession.prototype.getDialog = function (index)  {
+    return this.Dialogs[index];
+  }
+  ns.AiSession.prototype.getDialogs = function () {
+    return this.Dialogs;
+  };
+  // 기타 필요한 getter 메서드 추가
+  ns.AiSession.prototype.getUuid = function () {
+    return this.uuid;
+  };
+  ns.AiSession.prototype.getCreatedAt = function () {
+    return this.createdAt;
+  };
+  ns.AiSession.prototype.getPrompt = function () {
+    return this.prompt;
   };
 })();
