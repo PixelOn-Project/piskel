@@ -9,26 +9,45 @@
 
         <div class="dialog-content">
             <div class="detail-columns-container">
-
                 <div class="history-column">
                     <div class="history-open">
                         <div class="title-3">
                             <div class="text-wrapper-5">History</div>
                             <div class="folding-button"></div>
                         </div>
-                        <div class="history-log">
-                            <div class="history-button">
-                                <div class="rectangle"></div>
-                                <div class="text-wrapper-6">대표 프롬프트 단어</div>
-                            </div>
-                            <div class="more-button"></div>
-                            <div class="line"></div>
-                        </div>
+                        <ul class="history-list"></ul>
                     </div>
                 </div>
 
                 <div class="prompt-column">
-                    <div class="prompt"></div>
+                    <div class="panel-header">
+                        <h2>Prompts & Setting</h2>
+                    </div>
+                    <div class="prompt-group">
+                        <label>Positive Prompt</label>
+                        <textarea class="prompt-textarea positive-prompt" rows="6"></textarea>
+                    </div>
+                    <div class="prompt-group">
+                        <label class="negative-prompt-label">Negative Prompt <span class="checkmark-icon">&#10003;</span></label>
+                        <textarea class="prompt-textarea negative-prompt" rows="6"></textarea>
+                    </div>
+                    <!-- palette 그대로 불러오기? 오류 없나?-->
+                    <div class="palette-group"> </div>
+                    <div class="generation-controls">
+                        <div class="control-group">
+                        <label>Resolution</label>
+                        <div class="resolution-inputs">
+                            <input type="number" class="resolution-input" data-param="width" value="28">
+                            <span>X</span>
+                            <input type="number" class="resolution-input" data-param="height" value="28">
+                        </div>
+                        </div>
+                        <div class="control-group">
+                        <label>Count</label>
+                        <input type="number" class="count-input" value="16">
+                        </div>
+                        <button class="button-primary generate-button">Generate</button>
+                    </div>
                 </div>
 
                 <div class="result-column">
@@ -68,6 +87,9 @@
 
         <div class="dialog-footer" style="display: none;">
             <button type="button" class="button cancel-button" data-p-action="close">Close</button>
+        </div>
+        <div class="dialog-footer" style="display: none;">
+            <button type="button" class="button export-button" data-p-action="close">Export</button>
         </div>
     </div>
 
