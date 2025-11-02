@@ -349,3 +349,136 @@
     width: 100%;
     height: auto;
 }
+
+
+/* ================================================================== */
+/*                      PROMPT COLUMN STYLES (CORRECTED)              */
+/* ================================================================== */
+
+/* Main container for the prompt column */
+.prompt-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* Spacing between prompt groups, palette, etc. */
+  background-color: #424242;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+/* Header for the column ("Prompts & Setting") */
+/* 수정:.prompt-column과.panel-header 사이에 공백(space) 추가 */
+.prompt-column .panel-header {
+  border-bottom: 1px solid #555;
+  padding-bottom: 8px;
+}
+
+.prompt-column .panel-header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #E0E0E0;
+}
+
+/* Styling for each prompt section (Positive and Negative) */
+/* 수정:.prompt-column과.prompt-group 사이에 공백(space) 추가 */
+.prompt-column .prompt-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.prompt-column .prompt-group label {
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ccc;
+}
+
+.prompt-column .negative-prompt-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.prompt-column .checkmark-icon {
+  color: #ab47bc; /* A purple/violet color from the image */
+  font-weight: bold;
+}
+
+.prompt-column .prompt-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: #E0E0E0;
+  padding: 8px;
+  resize: vertical;
+  font-family: inherit; /* Use the same font as the rest of the dialog */
+  min-height: 80px;
+}
+
+/* Placeholder for the palette group */
+.prompt-column .palette-group {
+  /* Piskel's palette controller will be injected here. */
+  /* This ensures it has some space allocated. */
+  min-height: 80px;
+}
+
+/* Container for the controls at the bottom of the column */
+.prompt-column .generation-controls {
+  /* This is the key to push the controls to the bottom */
+  margin-top: auto;
+
+  display: flex;
+  align-items: flex-end; /* Align items to their bottom edge */
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #555;
+}
+
+/* Styling for individual control groups (Resolution, Count) */
+.prompt-column .control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.prompt-column .control-group label {
+  font-size: 12px;
+  color: #bbb;
+  margin-bottom: 0;
+}
+
+.prompt-column .resolution-inputs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Styling for number inputs */
+.prompt-column input[type="number"] {
+  width: 50px;
+  background-color: #2a2a2a;
+  border: 1px solid #555;
+  color: #E0E0E0;
+  text-align: center;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+/* Specific styling for the Generate button */
+.prompt-column .generate-button {
+  /* This pushes the button to the far right */
+  margin-left: auto;
+  background-color: #555;
+  border: 1px solid #777;
+  color: #E0E0E0;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.prompt-column .generate-button:hover {
+  background-color: #666;
+}
