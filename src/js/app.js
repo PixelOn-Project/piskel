@@ -59,10 +59,9 @@
       this.palettesListController = new pskl.controller.PalettesListController(this.currentColorsService);
       this.palettesListController.init();
 
-      /*
       this.aiGeneratorController = new pskl.controller.AiGeneratorController(this.piskelController);
       this.aiGeneratorController.init();
-        */
+
       this.cursorCoordinatesController = new pskl.controller.CursorCoordinatesController(this.piskelController);
       this.cursorCoordinatesController.init();
 
@@ -250,4 +249,3 @@
     }
   };
 })();
-

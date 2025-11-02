@@ -82,3 +82,48 @@
   font-size: 1.3em;
   cursor: pointer;
 }
+
+/* Pixel-on-detail Dialog Styles */
+#dialog-container.pixel-on-detail {
+  width: 1000px;
+  height: 650px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+}
+
+.pixel-on-detail-dialog .dialog-close {
+    position: absolute;
+    top: 10px; /* Adjust as needed */
+    right: 15px; /* Adjust as needed */
+    font-size: 24px;
+    color: #fff; /* White color for the 'x' */
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+}
+
+/* 3-column layout for pixel-on-detail dialog */
+.detail-columns-container {
+  display: flex;
+  height: 100%;
+}
+
+.detail-columns-container > div {
+  flex: 1; /* Each column takes up equal space */
+}
+
+.detail-column-red {
+  background-color: red;
+}
+
+.detail-column-green {
+  background-color: green;
+}
+
+.detail-column-blue {
+  background-color: blue;
+}

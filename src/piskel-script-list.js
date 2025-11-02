@@ -126,6 +126,7 @@
   "js/controller/TransformationsController.js",
   "js/controller/CanvasBackgroundController.js",
   "js/controller/UserWarningController.js",
+  "js/controller/AiGeneratorController.js",
 
   // Settings sub-controllers
   "js/controller/settings/AbstractSettingController.js",
@@ -162,6 +163,8 @@
   "js/controller/dialogs/importwizard/ImportWizard.js",
   "js/controller/dialogs/PerformanceInfoController.js",
   "js/controller/dialogs/UnsupportedBrowserController.js",
+    ////////////////////////////////////////////////////////////////////////
+  "js/controller/dialogs/PixelOnDetailController.js",
 
   // Dialogs controller
   "js/controller/dialogs/DialogsController.js",
