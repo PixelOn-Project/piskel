@@ -1,129 +1,351 @@
 #dialog-container-wrapper {
-  position: absolute;
-  z-index: 20000;
+    position: absolute;
+    z-index: 20000;
 
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
 
-  padding: 50px 150px;
-  overflow: hidden;
+    padding: 50px 150px;
+    overflow: hidden;
 
-  box-sizing: border-box;
-  -moz-box-sizing : border-box;
+    box-sizing: border-box;
+    -moz-box-sizing : border-box;
 
-  background-color: rgba(0,0,0,0.8);
-  opacity: 0;
-  pointer-events: none;
+    background-color: rgba(0,0,0,0.8);
+    opacity: 0;
+    pointer-events: none;
 
-  color: white;
+    color: white;
 }
 
 #dialog-container-wrapper.animated {
-  transition: opacity 0.2s;
+    transition: opacity 0.2s;
 }
 
 #dialog-container-wrapper.show {
-  opacity: 1;
-  pointer-events: auto;
+    opacity: 1;
+    pointer-events: auto;
 }
 
 #dialog-container {
-  width: 100%;
-  height:  100%;
+    width: 100%;
+    height:  100%;
 
-  margin-top: -1500px;
+    margin-top: -1500px;
 
-  box-sizing: border-box;
-  -moz-box-sizing : border-box;
+    box-sizing: border-box;
+    -moz-box-sizing : border-box;
 
-  border-radius: 3px;
-  border : 3px solid var(--highlight-color);
-  background: #444;
-  overflow: auto;
+    border-radius: 3px;
+    border : 3px solid var(--highlight-color);
+    background: #444;
+    overflow: auto;
 }
 
 .show #dialog-container {
-  margin-top: 0;
+    margin-top: 0;
 }
 
 .dialog-wrapper {
-  height: 100%;
-  position : relative;
+    height: 100%;
+    position : relative;
 }
 
 .dialog-content {
-  position: absolute;
-  top: 45px;
-  bottom: 0;
-  width: 100%;
-  box-sizing: border-box;
+    /* Header 높이(50px)에 맞게 조정 */
+    position: absolute;
+    top: 50px;
+    bottom: 0;
+    width: 100%;
+    height: calc(100% - 50px);
+    box-sizing: border-box;
 }
 
 .dialog-head {
-  width: 100%;
-  background: var(--highlight-color);
-  margin: 0;
-  padding: 10px;
-  color: black;
-  font-size: 1.8em;
-  height: 45px;
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
+    /* 원본 padding을 0으로 설정하고 flex를 통해 정렬 */
+    width: 100%;
+    background: var(--highlight-color);
+    margin: 0;
+    padding: 0 10px;
+    color: black;
+    font-size: 1.8em;
+    height: 50px; /* 최종 Header 높이 50px */
+    box-sizing: border-box;
+    display: flex;
+    align-items: center; /* 수직 중앙 정렬 */
+    justify-content: space-between;
 }
 
 .dialog-close {
-  position: absolute;
-  top: 0;
-  right: 0;
-  line-height: 45px;
-  margin-right: 10px;
-  font-size: 1.3em;
-  cursor: pointer;
+    /* Header 높이에 맞게 조정 */
+    position: static;
+    line-height: 50px;
+
+    margin-right: 0;
+    font-size: 28px; /* 통일된 폰트 사이즈 */
+    cursor: pointer;
+    width: 21px;
+    height: 50px;
+    color: var(--text-dark); /* 폰트 색상 */
+    background: transparent;
+    border: none;
+}
+
+:root {
+    --bg-dark: #1D1D1D;
+    --bg-medium: #404040;
+    --highlight-color: #A7ABDE;
+    --text-dark: #1D1D1D;
+    --text-light: #FFFFFF; /* White */
+
+    --color-black: #000000;
+
+    /* 원본 UI의 희미한 테두리 색상 (가로선용) */
+    --border-original-light: #757575;
+    --border-original-medium: #888888;
 }
 
 /* Pixel-on-detail Dialog Styles */
 #dialog-container.pixel-on-detail {
-  width: 1000px;
-  height: 650px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  margin: 0;
+    width: 1000px;
+    height: 650px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    border: 5px solid var(--highlight-color);
+    background-color: var(--bg-dark);
+    overflow: hidden;
 }
 
+/* dialog-head 스타일 수정 (수직 중앙 정렬) */
+.pixel-on-detail-dialog .dialog-head {
+    width: 100%;
+    height: 50px;
+    background-color: var(--highlight-color);
+
+    display: flex;
+    align-items: center;
+
+    justify-content: space-between;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+/* dialog-title 스타일 수정 */
+.pixel-on-detail-dialog .dialog-title {
+    line-height: 50px;
+
+    font-family: "Inter-Bold", Helvetica;
+    font-weight: 700;
+    color: var(--text-dark);
+    font-size: 28px;
+    width: 175px;
+    text-align: center;
+}
+
+
+/* dialog-close 스타일 수정 */
 .pixel-on-detail-dialog .dialog-close {
-    position: absolute;
-    top: 10px; /* Adjust as needed */
-    right: 15px; /* Adjust as needed */
-    font-size: 24px;
-    color: #fff; /* White color for the 'x' */
+    line-height: 50px;
+    position: static;
+
+    font-size: 28px;
+    color: var(--text-dark);
     background-color: transparent;
     border: none;
     cursor: pointer;
-    line-height: 1;
+    width: 21px;
+    height: 50px;
 }
 
 /* 3-column layout for pixel-on-detail dialog */
 .detail-columns-container {
-  display: flex;
-  height: 100%;
+    display: flex;
+    height: 100%;
 }
 
 .detail-columns-container > div {
-  flex: 1; /* Each column takes up equal space */
+    height: 100%;
+    box-sizing: border-box;
+    position: relative;
+
+    /* 세로 구역 경계선: White 적용 */
+    border-right: 1px solid var(--text-light);
+    background-color: var(--bg-medium); /* #404040 적용 */
+
+    /* Result Column 수직 분할을 위해 flex 설정 */
+    display: flex;
+    flex-direction: column;
 }
 
-.detail-column-red {
-  background-color: red;
+/* ========================================= */
+/* 기능별 컬럼 스타일 (너비) */
+/* ========================================= */
+
+.history-column {
+    flex: 0 0 200px;
 }
 
-.detail-column-green {
-  background-color: green;
+.prompt-column {
+    flex: 0 0 300px;
 }
 
-.detail-column-blue {
-  background-color: blue;
+.result-column {
+    flex: 1;
+    border-right: none;
+}
+
+/* Result Column 내부 수직 분할 Wrapper */
+.result-column .result-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+/* 1. Result 섹션 (80%) */
+.result-column .result-section {
+    flex: 0 0 80%; /* 수직 비율: 80% */
+    display: flex;
+    flex-direction: column;
+}
+
+/* 2. Button 섹션 (20%) */
+.result-column .button-section {
+    flex: 0 0 20%; /* 수직 비율: 20% */
+    background-color: var(--bg-medium);
+
+    /* Result 섹션과의 경계선: White 적용 */
+    border-top: 1px solid var(--text-light);
+}
+
+/* .so-what을 Button 섹션 전체로 확장 (수평 비율 적용) */
+.result-column .button-section .so-what {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-top: none;
+
+    display: flex;
+    align-items: center;
+    /* 수평 정렬을 위해 justify-content: space-between 대신 flex-start를 사용하고
+       각 flex item을 개별적으로 중앙 정렬합니다. */
+    justify-content: flex-start;
+    padding: 0;
+}
+
+/* ========================================= */
+/* 가로 구역 테두리: 원본 색상으로 복구 */
+/* ========================================= */
+
+.title-3 { /* History Header 하단 */
+    border-bottom: 2px solid var(--border-original-light);
+}
+
+.history-log { /* History Log 하단 */
+    border-bottom: 1px solid var(--border-original-medium);
+}
+
+.title { /* Result Header 하단 */
+    border-bottom: 1px solid var(--border-original-light);
+}
+
+.so-what {
+    /* 이 블록은 button-section .so-what보다 우선순위가 낮도록 설계됨 */
+    position: relative;
+    width: 100%;
+    height: 100px;
+    background-color: var(--bg-medium);
+    border-top: 1px solid var(--border-original-medium); /* 원본 색상 복구 */
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 10px;
+}
+
+/* ========================================= */
+/* CMD 및 액션 그룹 (60%:40% 비율 유지 및 중앙 정렬 적용) */
+/* ========================================= */
+
+.CMD {
+    /* CMD 영역 (4): 60% 공간 확보 */
+
+    /* **수정:** 60% 공간을 확보하는 Wrapper 역할을 위해 flex-basis 유지 */
+    flex-basis: 60%;
+    flex-grow: 0;
+    flex-shrink: 0;
+
+    /* **수정:** CMD 박스를 이 60% 공간 내에서 수평 중앙 정렬하기 위해
+       추가적인 Wrapper 없이 CMD 자체를 50% 너비로 제한하고 margin: auto를 사용합니다. */
+
+    /* CMD 박스 스타일 및 중앙 정렬 */
+    height: 68px;
+    background-color: var(--color-black);
+    border: 1px solid var(--text-light);
+
+
+    /* **핵심 수정:** CMD 박스 크기를 제한하고 중앙 정렬 */
+    width: 100%; /* flex-basis: 60%에 의해 제한됨 */
+    max-width: 250px; /* CMD 박스 자체의 최대 너비를 250px로 제한 */
+    margin: 0 auto; /* 60% 구역 내에서 수평 중앙 정렬 */
+
+    /* 내부 콘텐츠 중앙 정렬 (이전 Flex 속성 제거) */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 0 15px;
+    text-align: center;
+    position: relative;
+}
+
+
+/* CMD와 버튼 그룹 사이의 세로 구분선 (White 유지) */
+/* **수정:** CMD::after의 위치를 CMD 박스 대신 60% 공간의 끝에 맞추기 위해
+   CMD의 부모인 .so-what에 ::after를 적용합니다. (HTML 구조를 건드릴 수 없으므로 이 부분이 복잡합니다.)
+   가장 간단하게 CMD 박스 옆에 세로선을 유지하는 코드를 사용합니다. */
+.CMD::after {
+    content: '';
+    position: absolute;
+    top: 15%;
+    bottom: 15%;
+
+    /* CMD 박스 자체의 끝이 아닌, 60% 구역의 경계에 오도록 계산 */
+    left: 100%; /* CMD 박스 끝에 위치 */
+    transform: translateX(-50%); /* 정확한 위치 조정을 위해 -50% 이동 */
+
+    width: 1px;
+    background-color: var(--text-light);
+    z-index: 10; /* 버튼 그룹 위에 표시되도록 */
+}
+
+.result-actions-group {
+    /* 버튼 그룹 (3): 40% 공간 확보 및 중앙 정렬 */
+    display: flex;
+    flex-direction: column; /* 세로 나열 유지 */
+
+    flex-basis: 40%; /* 40% 비율 유지 */
+    flex-grow: 0;
+    flex-shrink: 0;
+
+    /* 수평 중앙 정렬 (40% 구역의 중앙) */
+    align-items: center;
+    /* 수직 중앙 정렬 */
+    justify-content: center;
+    gap: 5px;
+}
+
+
+/* Result 섹션의 .image 요소는 flex-grow를 통해 상단 80%를 채웁니다. */
+.result-section .image {
+    flex-grow: 1;
+    overflow-y: scroll;
+    width: 100%;
+    height: auto;
 }

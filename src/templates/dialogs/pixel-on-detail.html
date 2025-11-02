@@ -1,23 +1,74 @@
 <script type="text/template" id="templates/dialogs/pixel-on-detail.html">
 
-  <div class="dialog pixel-on-detail-dialog" data-dialog-id="pixel-on-detail">
-    <div class="dialog-header">
-      <h2 class="dialog-title">AI generator</h2>
-      <button type="button" class="dialog-close" data-p-action="close">&times;</button>
-    </div>
+    <div class="dialog pixel-on-detail-dialog" data-dialog-id="pixel-on-detail">
 
-    <div class="dialog-content">
-      <div class="detail-columns-container">
-        <div class="detail-column-red">ThisisforHistory</div>
-        <div class="detail-column-green">ThisisforPropmpt</div>
-        <div class="detail-column-blue">ThisisforResult</div>
-      </div>
-    </div>
+        <div class="dialog-header dialog-head">
+            <h2 class="dialog-title text-wrapper-2">AI Generator</h2>
+            <button type="button" class="dialog-close text-wrapper-3" data-p-action="close">&times;</button>
+        </div>
 
-    <div class="dialog-footer">
-      <h3>This is footer</h3>
-      <button type="button" class="button cancel-button" data-p-action="close">Close</button>
+        <div class="dialog-content">
+            <div class="detail-columns-container">
+
+                <div class="history-column">
+                    <div class="history-open">
+                        <div class="title-3">
+                            <div class="text-wrapper-5">History</div>
+                            <div class="folding-button"></div>
+                        </div>
+                        <div class="history-log">
+                            <div class="history-button">
+                                <div class="rectangle"></div>
+                                <div class="text-wrapper-6">대표 프롬프트 단어</div>
+                            </div>
+                            <div class="more-button"></div>
+                            <div class="line"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="prompt-column">
+                    <div class="prompt"></div>
+                </div>
+
+                <div class="result-column">
+
+                    <div class="result-wrapper">
+
+                        <div class="result-section">
+                            <div class="image">
+                                <div class="group">
+                                    <div class="title">
+                                        <div class="text-wrapper">Result</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="button-section">
+                            <div class="so-what">
+                                <div class="CMD"></div>
+                                <div class="result-actions-group">
+                                    <button class="button generate-more-button">
+                                        <div class="move">
+                                            <div class="div">Generate More</div>
+                                        </div>
+                                    </button>
+                                    <div class="div-wrapper move-to-layer-button">
+                                        <div class="text-wrapper-4">Move to Layer</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dialog-footer" style="display: none;">
+            <button type="button" class="button cancel-button" data-p-action="close">Close</button>
+        </div>
     </div>
-  </div>
 
 </script>
