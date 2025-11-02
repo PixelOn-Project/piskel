@@ -78,6 +78,10 @@
   "js/model/frame/RenderedFrame.js",
   "js/model/Palette.js",
   "js/model/Piskel.js",
+  "js/model/PixelOn/AiSession.js",
+  "js/model/PixelOn/Dialog.js",
+  "js/model/PixelOn/Group.js",
+  "js/model/PixelOn.js",
 
   // Database (IndexedDB)
   "js/database/BackupDatabase.js",
@@ -127,6 +131,7 @@
   "js/controller/CanvasBackgroundController.js",
   "js/controller/UserWarningController.js",
   "js/controller/AiGeneratorController.js",
+  "js/controller/pixelon/PixelOnController.js",
 
   // Settings sub-controllers
   "js/controller/settings/AbstractSettingController.js",

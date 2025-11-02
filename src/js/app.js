@@ -25,7 +25,7 @@
       var fps = Constants.DEFAULT.FPS;
       var descriptor = new pskl.model.piskel.Descriptor('New Piskel', '');
       var piskel = new pskl.model.Piskel(size.width, size.height, fps, descriptor);
-
+      var pixelOn = new pskl.model.PixelOn(size.width, size.height, 8);
       var layer = new pskl.model.Layer('Layer 1');
       var frame = new pskl.model.Frame(size.width, size.height);
 
@@ -37,6 +37,10 @@
 
       this.piskelController = new pskl.controller.piskel.PublicPiskelController(this.corePiskelController);
       this.piskelController.init();
+
+      // PixelOn 관련 서비스 및 컨트롤러 초기화
+      this.pixelOnController = new pskl.controller.PixelOnController(pixelOn);
+      this.pixelOnController.init(size.width, size.height, 8);
 
       this.paletteImportService = new pskl.service.palette.PaletteImportService();
       this.paletteImportService.init();
