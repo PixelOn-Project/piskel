@@ -26,6 +26,7 @@
     // Find the root element of this specific dialog using its unique data-dialog-id.
     // This is the correct way to set up the container for a dialog controller.
     this.container = document.querySelector('[data-dialog-id="pixel-on-detail"]');
+    this.isShow_ = true
 
     // DOM Element References
     this.historyListEl = this.container.querySelector('.history-list');
@@ -40,18 +41,30 @@
     this.resultsContentEl = this.container.querySelector('.result-section');
     this.exportButton = this.container.querySelector('.export-button');
     this.statusTextEl = this.container.querySelector('.status-text');
+    this.dialogWrapper = this.container.parentNode.parentNode;
 
+    // paletteList 객체 옮겨오기 (toolbox-container palettes-list-container)
+    this.paletteArea = document.querySelector('.prompt-column .palette-area')
+    this.paletteContainer = document.getElementById("palettes-list-container")
+    this.originalParent = this.paletteContainer.parentNode;
+    this.originalNextSibling = this.paletteContainer.nextSibling
+    
+    // paletteList 객체 적용하기
+    this.paletteArea.appendChild(this.paletteContainer)
+
+    // ADD EventListener
     // --- Event Listeners ---
+    this.addEventListener(this.dialogWrapper, 'click', this.onCloseFuncs_, true) // 최우선 실행
     this.addEventListener(this.createSessionButton, 'click', this.onCreateSessionClick_);
     this.addEventListener(this.generateButton, 'click', this.onGenerateClick_);
     this.addEventListener(this.exportButton, 'click', this.onExportClick_);
 
     // Now that this.container is correctly defined, we can find elements within it.
     var closeButton = this.container.querySelector('.dialog-close');
-    this.addEventListener(closeButton, 'click', this.closeDialog);
+    this.addEventListener(closeButton, 'click', this.onCloseClick_);
 
     var cancelButton = this.container.querySelector('.cancel-button');
-    this.addEventListener(cancelButton, 'click', this.closeDialog);
+    this.addEventListener(cancelButton, 'click', this.onCloseClick_);
 
     // Event Delegation for dynamically created elements
     this.addEventListener(this.historyListEl, 'click', this.onHistoryItemClick_);
@@ -73,7 +86,12 @@
   };
 
   ns.PixelOnDetailController.prototype.onHistoryItemClick_ = function (evt) {
-
+    const clickedItem = evt.target;
+    if (clickedItem.tagName === 'LI') {
+          const allItems = list.querySelectorAll('li');
+          allItems.forEach(item => item.classList.remove('selected'));
+          clickedItem.classList.add('selected');
+      }
   };
 
   ns.PixelOnDetailController.prototype.onGenerateClick_ = function () {
@@ -87,6 +105,17 @@
   ns.PixelOnDetailController.prototype.onExportClick_ = function () {
 
   };
+
+  ns.PixelOnDetailController.prototype.onCloseClick_ = function () {
+    this.originalParent.insertBefore(this.paletteContainer, this.originalNextSibling)
+    this.closeDialog()
+  }
+
+  ns.PixelOnDetailController.prototype.onCloseFuncs_ = function(evt) {
+    if (evt.target === this.dialogWrapper) {
+      this.originalParent.insertBefore(this.paletteContainer, this.originalNextSibling)
+    }
+  }
 
   // =================================================================
   //                         PRIVATE HELPER METHODS

@@ -17,6 +17,7 @@
   ns.PixelOnController.prototype.init = function () {
     //this.pixelOn = new pskl.model.PixelOn(width, height, generate_count);
     //this.publishEvent_(Events.PIXELON_STATE_LOADED);
+    
   };
 
   // =================================================================

@@ -1,3 +1,8 @@
+.pixel-on-detail-dialog-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
 #dialog-container-wrapper {
     position: absolute;
     z-index: 20000;
@@ -350,7 +355,43 @@
     height: auto;
 }
 
+/* ================================================================== */
+/*                     HISTORY COLUMN STYLES (CORRECTED)              */
+/* ================================================================== */
 
+.title-3 {
+  border-bottom: 1px solid #ffffff;
+  padding: 12px;
+  padding-bottom: 0px;
+}
+
+.title-3 .text-wrapper {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #E0E0E0;
+}
+.hitory-contents {
+  flex: 1;
+  overflow-y: auto;
+}
+.history-block {
+  padding: 8px;
+  font-size: 14px;
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+}
+.history-block.selected {
+  transition: background-color 0.2s ease;
+  background-color: gold;
+  color: black;
+}
+.history-block:hover {
+  background-color: #777;
+  color: white;
+}
 /* ================================================================== */
 /*                      PROMPT COLUMN STYLES (CORRECTED)              */
 /* ================================================================== */
@@ -368,8 +409,9 @@
 /* Header for the column ("Prompts & Setting") */
 /* 수정:.prompt-column과.panel-header 사이에 공백(space) 추가 */
 .prompt-column .panel-header {
-  border-bottom: 1px solid #555;
+  border-bottom: 1px solid #ffffff;
   padding-bottom: 8px;
+
 }
 
 .prompt-column .panel-header h2 {
@@ -477,6 +519,7 @@
   border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
+  
 }
 
 .prompt-column .generate-button:hover {
