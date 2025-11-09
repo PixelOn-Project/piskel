@@ -88,7 +88,7 @@
   ns.PixelOnDetailController.prototype.onHistoryItemClick_ = function (evt) {
     const clickedItem = evt.target;
     if (clickedItem.tagName === 'LI') {
-          const allItems = list.querySelectorAll('li');
+          const allItems = this.historyListEl.querySelectorAll('li');
           allItems.forEach(item => item.classList.remove('selected'));
           clickedItem.classList.add('selected');
       }
