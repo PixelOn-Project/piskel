@@ -37,6 +37,11 @@
         this.resultsContentEl = this.container.querySelector('.result-section');
         this.exportButton = this.container.querySelector('.export-button');
         this.statusTextEl = this.container.querySelector('.status-text');
+
+        // Template 추가
+        this.historyBlockTemplate_ = pskl.utils.Template.get('history-block-template')
+        this.imageFrameTemplate = pskl.utils.Template.get('image-frame-template')
+
         this.dialogWrapper = this.container.parentNode.parentNode;
 
         this.paletteArea = document.querySelector('.prompt-column .palette-area')
@@ -166,7 +171,31 @@
     };
 
     ns.PixelOnDetailController.prototype.onGenerateClick_ = function () {
+        // Positive prompt 불러오기
+        // Negative Prompt 불러오기
+        // Resolution 불러오기
+        // Count 불러오기
+        // API 보내기
+        
+        // historyListEl (history-list)에 history-block-template 생성해서 넣기
+        var historyBlockItem = pskl.utils.Template.replace(this.historyBlockTemplate_, {
+            'historyName': 'prompt_name_here...',
+            'uuid': 'session_uuid_here...'
+        });
+        var historyBlock = pskl.utils.Template.createFromHTML(historyBlockItem);
+        this.historyListEl.insertBefore(historyBlock, this.historyListEl.firstChild);
 
+        // selected 된거 표시
+        var allItems = this.historyListEl.querySelectorAll('.history-block');
+        allItems.forEach(function(item) {
+            item.classList.remove('selected');
+        });
+        historyBlock.classList.add('selected');
+
+        // API 불러오기
+
+        // PixelOn Model에 새로운 AISession 추가하기
+        
     };
 
     ns.PixelOnDetailController.prototype.onResultsContentClick_ = function (evt) {

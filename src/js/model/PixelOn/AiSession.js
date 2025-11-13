@@ -4,19 +4,22 @@
   /**
    * 하나의 큰 주제나 아이디어의 흐름을 나타내는 AI 생성 세션.
    * 여러 개의 Dialog(생성 시도)를 포함합니다.
-   * @param {String} initialPrompt - 이 세션을 시작한 최초의 대표 프롬프트
+   * @param {String} initialPrompt  - 이 세션을 시작한 최초의 대표 프롬프트
+   * @param {Object} spec           - 생성 명세
+   * @param {String} spec.p_prompt  - 긍정 프롬프트
+   * @param {String} spec.n_prompt  - 부정 프롬프트
+   * @param {Number} spec.seed      - 시드 값
+   * @param {Number} spec.width     - 가로 크기
+   * @param {Number} spec.height    - 세로 크기
+   * @param {Object} spec.details   - 기타 AI 입력 파라미터
    */
-  ns.AiSession = function (initialPrompt) {
+  ns.AiSession = function (initialPrompt, spec) {
     this.uuid = pskl.utils.Uuid.generate();
     this.createdAt = Date.now();
 
     this.prompt = initialPrompt || 'Untitled Session';
 
-    /**
-     * 이 세션에 속한 모든 생성 시도(Dialog)의 목록
-     * @type {Array<pskl.model.PixelOn.Dialog>}
-     */
-    this.Dialogs=[];
+
   };
   // Dialog 추가/조회 메서드
   ns.AiSession.prototype.addDialog = function (dialog) {

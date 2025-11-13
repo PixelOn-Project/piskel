@@ -14,21 +14,12 @@
                     <div class="history-header">
                         <div class="title-3">
                                 <h2>History (latest)</h2>
-
                         </div>    
                     </div> 
                     <div class="history-contents">
                         <ul class="history-list" id="selectable-list">
-                            <li class="history-block">
-                                <span class="history-item-name">멋쟁이 토마토, 멋쟁이 토마토...</span>
-                                <div class="history-item-actions">
-                                    <button class="history-item-menu-button">...</button>
-                                    <div class="history-item-menu" style="display: none;">
-                                        <button class="history-item-action-rename">Rename</button>
-                                        <button class="history-item-action-delete">Delete</button>
-                                    </div>
-                                </div>
-                            </li>
+                            <!-- history-block-template -->
+                            
                         </ul>
                     </div>
                 </div>
@@ -73,95 +64,7 @@
                     <div class="result-wrapper">
                         <div class="result-section">
                             <div class="result-container">
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div><div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div><div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-                                <div class="image-frame">
-                                    <div class="image"></div>
-                                </div>
-
+                                <!-- image-frame-->
                             </div>
                         </div>
 
@@ -191,6 +94,25 @@
         <div class="dialog-footer" style="display: none;">
             <button type="button" class="button export-button" data-p-action="close">Export</button>
         </div>
+
+        <script type="text/template" id="image-frame-template">
+            <div class="image-frame">
+                <div class="image"></div>
+            </div>
+        </script>
+
+        <script type="text/template" id="history-block-template">
+            <li class="history-block" id="{{uuid}}">
+                <span class="history-item-name">{{historyName}}</span>
+                <div class="history-item-actions">
+                    <button class="history-item-menu-button">...</button>
+                    <div class="history-item-menu" style="display: none;">
+                        <button class="history-item-action-rename">Rename</button>
+                        <button class="history-item-action-delete">Delete</button>
+                    </div>
+                </div>
+            </li>
+        </script>
     </div>
 
 </script>

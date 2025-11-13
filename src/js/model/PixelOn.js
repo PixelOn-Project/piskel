@@ -16,11 +16,6 @@
        */
       this.imageStore = new Map();
       /**
-       * 사용자가 생성한 이미지 그룹(라이브러리) 목록.
-       * @type {Array<pskl.model.PixelOn.Group>}
-       */
-      this.library =[];
-      /**
        * AI 생성 세션 기록 목록.
        * @type {Array<pskl.model.PixelOn.AiSession>}
        */
@@ -64,46 +59,13 @@
   ns.PixelOn.prototype.getImageFromStore = function (uuid) {
     return this.imageStore.get(uuid);
   };
-  // 라이브러리(그룹) 추가/조회 메서드
-  /**
-   * group 객체를 라이브러리에 추가합니다.
-   * @param {pskl.model.PixelOn.Group} group 
-   */
-  ns.PixelOn.prototype.addGroupToLibrary = function (group) {
-    this.library.push(group);
-  };
-  /**
-   * 이름으로 그룹을 조회합니다.
-   * @param {String} name
-   * @return {pskl.model.PixelOn.Group|null}
-   * 이름에 해당하는 그룹이 없으면 null 반환
-   */
-  ns.PixelOn.prototype.getGroupByName = function (name) {
-    for (var i = 0; i < this.library.length; i++) {
-      if (this.library[i].name === name) {
-        return this.library[i];
-      }
-    }
-    return null;
-  };
-  /**
-   * 그룹명과 image uuid가 주어지면, 해당 그룹에 이미지를 추가합니다.
-   * @param {String} groupName 
-   * @param {String} imageUuid 
-   */
-  ns.PixelOn.prototype.addImageToGroup = function (groupName, imageUuid) {
-    var group = this.getGroupByName(groupName);
-    if (group) {
-      group.addData(imageUuid);
-    }
-  };
   // 동일한 방식으로 세션 추가/조회 메서드를 구현해라.
   ns.PixelOn.prototype.addSession = function (session) {
     this.sessions.push(session);
   };
   ns.PixelOn.prototype.getSessionById = function (id) {
     for (var i = 0; i < this.sessions.length; i++) {
-      if (this.sessions[i].id === id) {
+      if (this.sessions[i].uuid === id) {
         return this.sessions[i];
       }
     }
