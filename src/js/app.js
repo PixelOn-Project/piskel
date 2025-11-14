@@ -28,6 +28,12 @@
       var layer = new pskl.model.Layer('Layer 1');
       var frame = new pskl.model.Frame(size.width, size.height);
 
+      // New PixelOn 
+      var pixelOn = new pskl.model.PixelOn(size.width, size.height, Constants.GENERATE_COUNT)
+      var pixelOnController = new pskl.controller.pixelOn.PixelOnController(pixelOn)
+      pskl.app.pixelOnController = pixelOnController;
+      pixelOnController.init()
+
       layer.addFrame(frame);
       piskel.addLayer(layer);
 
@@ -189,6 +195,8 @@
           pskl.app.piskelController.setPiskel(piskel);
         });
       });
+
+      // ToDo subscribe(Evnets.EXTERNAL_PIXLON_READY, function() {});
 
       if (pskl.devtools) {
         pskl.devtools.init();

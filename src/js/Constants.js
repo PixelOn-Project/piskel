@@ -64,5 +64,8 @@ var Constants = {
   CONFIRM_OVERWRITE: 'This will replace your current animation, are you sure you want to continue?',
 
   // SERVICE URLS
-  APPENGINE_SAVE_URL : 'save'
+  APPENGINE_SAVE_URL : 'save',
+
+  // Add PixelOn Constant
+  GENERATE_COUNT: 4
 };

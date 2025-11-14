@@ -1,31 +1,17 @@
 (function () {
     var ns = $.namespace('pskl.controller.dialogs');
 
-    var instance = null;
-
     ns.PixelOnDetailController = function (piskelController, args) {
         this.piskelController = piskelController;
-        var pixelOn = new pskl.model.PixelOn(256, 256, 8);
-        this.pixelOnController = new pskl.controller.PixelOnController(pixelOn);
-        this.pixelOnController.init(pixelOn.getWidth(), pixelOn.getHeight(), 8);
         this.args = args;
     };
-
     pskl.utils.inherit(ns.PixelOnDetailController, pskl.controller.dialogs.AbstractDialogController);
 
-    ns.PixelOnDetailController.getInstance = function (piskelController) {
-        if (!ns.PixelOnDetailController.instance) {
-            instance = new ns.PixelOnDetailController(piskelController);
-        }
-        return instance;
-    };
 
     ns.PixelOnDetailController.prototype.init = function () {
         this.container = document.querySelector('[data-dialog-id="pixel-on-detail"]');
-        this.isShow_ = true
 
         this.historyListEl = this.container.querySelector('.history-list');
-        this.historyContentsEl = this.container.querySelector('.history-contents');
         this.createSessionButton = this.container.querySelector('.generate-button');
         this.positivePromptEl = this.container.querySelector('.positive-prompt');
         this.negativePromptEl = this.container.querySelector('.negative-prompt');
@@ -172,7 +158,9 @@
 
     ns.PixelOnDetailController.prototype.onGenerateClick_ = function () {
         // Positive prompt 불러오기
+
         // Negative Prompt 불러오기
+        
         // Resolution 불러오기
         // Count 불러오기
         // API 보내기
