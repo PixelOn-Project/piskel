@@ -185,6 +185,9 @@
         var historyBlock = pskl.utils.Template.createFromHTML(historyBlockItem);
         this.historyListEl.insertBefore(historyBlock, this.historyListEl.firstChild);
 
+        // PixelOn Model에 새로운 AISession 추가하기
+        
+
         // selected 된거 표시
         var allItems = this.historyListEl.querySelectorAll('.history-block');
         allItems.forEach(function(item) {
@@ -193,9 +196,6 @@
         historyBlock.classList.add('selected');
 
         // API 불러오기
-
-        // PixelOn Model에 새로운 AISession 추가하기
-        
     };
 
     ns.PixelOnDetailController.prototype.onResultsContentClick_ = function (evt) {
