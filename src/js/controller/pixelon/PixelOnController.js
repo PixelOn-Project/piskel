@@ -39,18 +39,14 @@
   };
 
   ns.PixelOnController.prototype.getImageByUuid = function (uuid) {
-    return this.pixelOn.imageStore[uuid];
+    return this.pixelOn.getImageFromStore(uuid);
   };
-
-  ns.PixelOnController.prototype.getSessionByUuid = function (uuid) {
-    // 모델 코드의 getSessionById가 'id'를 사용하지만, 모델 전반적으로 'uuid'를 사용하므로
-    // 여기서 'uuid'를 사용하도록 수정하여 일관성을 유지합니다.
-    for (var i = 0; i < this.pixelOn.sessions.length; i++) {
-      if (this.pixelOn.sessions[i].uuid === uuid) {
-        return this.pixelOn.sessions[i];
-      }
-    }
-    return null;
+  /**
+   * session의 index를 이용해 1개의 session을 Array에서 제거합니다.
+   * @param {Number} session_index 
+   */
+  ns.PixelOnController.prototype.getSessionByIndex = function (index) {
+    return this.pixelOn.getSessionList()[index];
   };
 
   // =================================================================
@@ -68,32 +64,13 @@
 
   /**
    * 새로운 세션을 생성하고 모델에 추가합니다.
-   * @param {String} name 세션의 이름
+   * @param {String} init_prompt 세션의 이름
+   * @param {Object} spec 스펙(p_prompt, n_prompt, createdAt 등등...)
    * @return {pskl.model.PixelOn.AiSession} 생성된 세션 객체
    */
-  ns.PixelOnController.prototype.createSession = function (name) {
-    var session = new pskl.model.PixelOn.AiSession(name);
-    this.pixelOn.addSession(session);
-    this.publishEvent_(Events.PIXELON_SESSION_CREATED);
+  ns.PixelOnController.prototype.createSession = function (init_prompt, spec) {
+    const session = this.pixelOn.createSession(init_prompt, spec);
     return session;
-  };
-
-  /**
-   * 특정 세션에 새로운 Dialog를 추가합니다.
-   * @param {String} sessionId Dialog를 추가할 세션의 UUID
-   * @param {Object} spec Dialog 생성에 필요한 데이터 (prompts, seed 등)
-   * @return {pskl.model.PixelOn.Dialog} 생성된 Dialog 객체
-   */
-  ns.PixelOnController.prototype.addDialogToSession = function (sessionId, spec) {
-    var session = this.getSessionByUuid(sessionId);
-    if (!session) {
-      console.error('Session not found for id:', sessionId);
-      return null;
-    }
-    var dialog = new pskl.model.PixelOn.Dialog(spec);
-    session.Dialogs.push(dialog);
-    this.publishEvent_(Events.PIXELON_DIALOG_CREATED);
-    return dialog;
   };
 
   /**

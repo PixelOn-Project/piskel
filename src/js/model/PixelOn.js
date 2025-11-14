@@ -19,7 +19,7 @@
        * AI 생성 세션 기록 목록.
        * @type {Array<pskl.model.PixelOn.AiSession>}
        */
-      this.sessions =[];
+      this.sessions = [];
     } else {
       throw 'Missing arguments in PixelOn constructor : ' + Array.prototype.join.call(arguments, ',');
     }
@@ -59,16 +59,21 @@
   ns.PixelOn.prototype.getImageFromStore = function (uuid) {
     return this.imageStore.get(uuid);
   };
-  // 동일한 방식으로 세션 추가/조회 메서드를 구현해라.
-  ns.PixelOn.prototype.addSession = function (session) {
+  // 초기 prompt와 spec을 받으면, 새로운 AiSession을 생성합니다.
+  ns.PixelOn.prototype.createSession = function (init_prompt, spec) {
+    const session = new pskl.model.PixelOn.AiSession(init_prompt, spec)
     this.sessions.push(session);
+    return session;
   };
-  ns.PixelOn.prototype.getSessionById = function (id) {
-    for (var i = 0; i < this.sessions.length; i++) {
-      if (this.sessions[i].uuid === id) {
-        return this.sessions[i];
-      }
-    }
-    return null;
-  };
+  ns.PixelOn.prototype.getSessionList = function() {
+    return this.sessions
+  }
+  /**
+   * session의 index를 이용해 1개의 session을 Array에서 제거합니다.
+   * @param {Number} session_index 
+   */
+  ns.PixelOn.prototype.removeSessionList = function(session_index) {
+    if (session_index >= 0 && session_index < this.sessions.length)
+      this.sessions.splice(session_index, 1)
+  }
 })();
