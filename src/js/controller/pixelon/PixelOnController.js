@@ -1,37 +1,31 @@
 (function () {
-  var ns = $.namespace('pskl.controller');
+  var ns = $.namespace('pskl.controller.pixelOn');
 
   /**
    * PixelOn 애드온의 데이터 모델을 총괄하는 메인 컨트롤러.
    */
   ns.PixelOnController = function (pixelOn) {
-    this.pixelOn = pixelOn;
+    if (pixelOn) {
+      this.setPixelOn(piskel);
+    } else {
+      throw 'A piskel instance is mandatory for instanciating PiskelController';
+    }
   };
 
   /**
    * 새로운 PixelOn 모델로 컨트롤러를 초기화하거나 리셋합니다.
-   * @param {Number} width
-   * @param {Number} height
-   * @param {Number} generate_count
+   * @param {Object} pixelOn
    */
-  ns.PixelOnController.prototype.init = function () {
-    //this.pixelOn = new pskl.model.PixelOn(width, height, generate_count);
-    //this.publishEvent_(Events.PIXELON_STATE_LOADED);
-    
+  ns.PixelOnController.prototype.setPixelOn = function(pixelOn) {
+    this.pixelOn = pixelOn;
+  };
+
+  ns.PixelOnController.prototype.init = function () {    
   };
 
   // =================================================================
   //                             GETTERS
   // =================================================================
-
-  /**
-   * 현재 PixelOn 모델 인스턴스를 반환합니다.
-   * @return {pskl.model.PixelOn}
-   */
-  ns.PixelOnController.prototype.getPixelOn = function () {
-    return this.pixelOn;
-  };
-
   ns.PixelOnController.prototype.getWidth = function () {
     return this.pixelOn.getWidth();
   };
