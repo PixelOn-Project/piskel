@@ -50,6 +50,12 @@
   ns.AiSession.prototype.addImageUuid = function(uuid) {
     this.imageUuidsList.push(uuid);
   };
+  ns.AiSession.prototype.removeImageUuid = function(uuid) {
+    const index = this.imageUuidsList.findIndex((_uuid) => _uuid == uuid);
+    if (index !== -1) {
+      this.imageUuidsList.splice(index, 1)
+    } 
+  };
 
   ns.AiSession.prototype.setName = function (name) {
     this.name = name;

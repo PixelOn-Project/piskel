@@ -98,7 +98,7 @@
 
         // imageList가 주어지면 UUID로 값 가지고 와서 새로운 객체 생성
         imageList.forEach((uuid) => {
-            this.createImageFrame_(this.pixelOnController.getImage(uuid));
+            this.createImageFrame_(uuid, this.pixelOnController.getImage(uuid));
         });
     };
     ns.PixelOnDetailController.prototype.initDefault_ = function(spec) {
@@ -161,10 +161,11 @@
         // 생성된 Block 돌려줌
         return historyBlock;
     }
-    ns.PixelOnDetailController.prototype.createImageFrame_ = function(image) {
+    ns.PixelOnDetailController.prototype.createImageFrame_ = function(uuid, data) {
         // ImageFrame 하나 맨 뒤에 생성
         const imageFrameItme = pskl.utils.Template.replace(this.imageFrameTemplate_, {
-            "img": image
+            "uuid": uuid,
+            "img": data.image,
         })
         const imageFrame = pskl.utils.Template.createFromHTML(imageFrameItme);
         this.resultsContainerEl.appendChild(imageFrame);
@@ -311,6 +312,8 @@
     };
     ns.PixelOnDetailController.prototype.onGenerateClick_ = function () {
         const spec = this.getSpec_();
+        spec.p_prompt += this.sample_count++;
+        spec.n_prompt += this.sample_count++;
 
         // Session 있으면, 기존 session에 데이터 저장, 없으면 생성
         currentSession = this.currentSession;
@@ -328,17 +331,17 @@
 
         // API 보내기
         // 받았다 치고, Image 하나 추가해보기
-        setTimeout(this.onResultRecive.bind(this, currentSession.getUuid(), this.sample_data[Math.floor(Math.random() * this.sample_data.length)]), 1000)
+        setTimeout(this.onResultRecive.bind(this, currentSession.getUuid(), spec, this.sample_data[Math.floor(Math.random() * this.sample_data.length)]), 1000)
 
         // 현재 작업중인 Session 업데이트
         this.currentSession = currentSession;
     };
-    ns.PixelOnDetailController.prototype.onResultRecive = function(uuid, img) {
+    ns.PixelOnDetailController.prototype.onResultRecive = function(uuid, spec, img) {
         // uuid: session의 uuid, img: 이미지 (base64png)로 인코딩 되었다고 가정.
         // 원래 service가 데이터까지 처리하지만, 임시로 controller에서 진행
         // 1. Image 등록
         const session = this.pixelOnController.getSessionByUuid(uuid);
-        const imgUuid = this.pixelOnController.addImage(img);
+        const imgUuid = this.pixelOnController.addImage(img, spec);
         
         // 2. Image UUID Session에 등록
         if (session) {
@@ -346,8 +349,10 @@
         }
         // ------------------------ 임시 코드 ------------------------ 
         // 현재 세션이랑 동일하다면, img 생성
+        // img말고 uuid를 던져줌 -> 이거 getImage해서 넣어줘야함
+        // session도 uuid를 던져줌 -> 이걸로 비교 진행
         if (session === this.currentSession) {
-            this.createImageFrame_(img);
+            this.createImageFrame_(imgUuid, this.pixelOnController.getImage(imgUuid));
         }
     }
 
@@ -363,7 +368,18 @@
         if (target.classList.contains('image-action-delete')) {
             if (imageFrame) {
                 imageFrame.remove();
+                // 모델에서도 해당 이미지 session에서 제거
+                this.currentSession.removeImageUuid(imageFrame.getAttribute("uuid"));
                 this.updateSelectControls_(); // 삭제 후 UI 업데이트
+            }
+            this.closeAllImageMenus_();
+            return;
+        }
+
+        if (target.classList.contains('image-action-transfer-prompt')) {
+            if (imageFrame) {
+                // 내용 변경
+                this.initDefault_(this.pixelOnController.getImage(imageFrame.getAttribute("uuid")).spec);
             }
             this.closeAllImageMenus_();
             return;

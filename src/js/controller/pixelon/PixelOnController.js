@@ -66,9 +66,12 @@
   ns.PixelOnController.prototype.setGenerateCount = function(count) {
     this.pixelOn.setGenerateCount(count);
   };
-  ns.PixelOnController.prototype.addImage = function(image) {
+  ns.PixelOnController.prototype.addImage = function(image, spec) {
     const uuid = pskl.utils.Uuid.generate();
-    this.pixelOn.addImage(uuid, image);
+    this.pixelOn.addImage(uuid, {
+      image: image,
+      spec: spec,
+    });
     return uuid;
   };
   ns.PixelOnController.prototype.addSession = function(session) {

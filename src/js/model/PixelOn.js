@@ -39,9 +39,9 @@
     this.generateCount = count;
   };
   // 이미지 저장소에 이미지 추가/조회 메서드
-  ns.PixelOn.prototype.addImage = function (uuid, image) {
+  ns.PixelOn.prototype.addImage = function (uuid, data) {
     // uuid 모듈을 사용하여 고유한 식별자 생성 후 imageStore에 저장
-    this.imageStore.set(uuid, image);
+    this.imageStore.set(uuid, data);
   };
   ns.PixelOn.prototype.getImage = function (uuid) {
     return this.imageStore.get(uuid);
