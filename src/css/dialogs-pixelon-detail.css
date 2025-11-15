@@ -149,12 +149,12 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 100%;
+    height: 90%;
 }
 
 /* 1. Result 섹션 (80%) */
 .result-column .result-section {
-    flex: 0 0 70%; /* 수직 비율: 80% */
+    flex: 0 0 80%; /* 수직 비율: 80% */
     display: flex;
     flex-direction: column;
     overflow-y: auto;

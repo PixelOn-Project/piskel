@@ -5,10 +5,12 @@
         this.piskelController = piskelController;
         this.pixelOnController = pskl.app.pixelOnController;
         this.args = args;
+
         this.sample_data = [
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABoElEQVR4AeyV4XIDIQiE2T55++TXXaKJXkG8dm76J46oKCyfJpN82D+3N0D2Agc/GRmne3sGYMfh9TXIbqNIAVSxQfhSwx22BFDBAULuXyx8yRJAFRtEKKDzDUtzUwAAZl9p3kbNZwj5c50MgNWbQIOgijZyJZ3+NKYdBrzkziEZgOKAz9WxVc2LD68YUuxVaK9QVRzOn8XxuERY3NgqgNcrEIKqTLGDQ2UMMcOjuK1aBaDcF4Q8mkAi45F3nQF+aQ0y34+GHQDPQ7uNxC1p/QxY1pyytwG6+JQdOIqTBUfh1jZAmL3YbBD9u5JG7gBQSzqpRnrAxPFPLYzbAZgSAYQ/LEC8PyUHTgXAS/zu9mMtisgNhSoAJU4mMdm0SUd7Mi4v9csAl9Q3gt8AqxfgRzp/bwBMjwqs/R4MeJwPfa/PK4AeszUDoX6ZexkAgP8OAHBxAO7L4ZNpmgzA5J+dFQDYpngVWNkUTGfITylWAJSw5+2saCp2NqaosIzLuFcASqYuHISLdKY8AuPWulcAPTsSP+/12EvzLsAl0TG4Wn8DAAD//1SS+kMAAAAGSURBVAMAarinQckpiIkAAAAASUVORK5CYII=",
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABr0lEQVR4AeyUwU0DMRBFHTqgBY40gEQDHKiAGxfuXDhx5kJogFKQaIBqEhpg8RuNN8Os7bW1K4FQov3rmdk/f76dTU7CL3+OBv70CQzx9bCI6fpX6QQYHLZXpwIdKzWNV1tKBuzgH/Fqk1WoaECf+6XnFOB6eL1QNXB9czc28HVo4kVtrpRATU6OPqAPpK6xLFUDMKwJcoCgB/UIBgAZHvPxgj8mJigZ2Dy87YR2ef8qKzdEALEHdUA9rcRsABDnUDIg3PPb5/B4UaUIz97s8KePr5A2kDZkucQ19Q2EJcD8fv8Z2EjUQQ/E8HDVDBxYCyJ7IjmZmoHBNnOEwItQA77empcMyJvcKrKElzMgw+3uGUAOiC2oAVvrib2B7PAewV6uNzD5A+kV9Py592NiwAuslE9+fkm3y8DcbpJoWpVfHA6vakAF4AUbS2Hm1sqfGPCN5GDY7gIgtsj54Hmss3MQw/LlDUiDCsgLyU8MvLyfBUBsYaXpA7Y2F3sD8EcTiAGKnRCNlp6cAfoQGIGJFtAYQV9c2q6SAd+NaCt8bzVvNVAVWfLwaOD/n8Dc+/ENAAD//zmWiXwAAAAGSURBVAMAUL+fQURvOjIAAAAASUVORK5CYII=",
         ]
+        this.sample_count = 0;
     };
     pskl.utils.inherit(ns.PixelOnDetailController, pskl.controller.dialogs.AbstractDialogController);
 
@@ -26,7 +28,7 @@
         this.generateButton = this.container.querySelector('.generate-button');
         this.resultsTitleEl = this.container.querySelector('.results-title');
         this.resultsContainerEl = this.container.querySelector('.result-container');
-        this.exportButton = this.container.querySelector('.export-button');
+
         this.statusTextEl = this.container.querySelector('.status-text');
 
         // Select Controls
@@ -51,7 +53,7 @@
         this.addEventListener(this.dialogWrapper, 'click', this.onCloseFuncs_, true)
         this.addEventListener(this.createSessionButton, 'click', this.onNewSessionClick_);
         this.addEventListener(this.generateButton, 'click', this.onGenerateClick_);
-        this.addEventListener(this.exportButton, 'click', this.onExportClick_);
+
         this.addEventListener(this.cancelSelectButton, 'click', this.onCancelSelectClick_.bind(this));
 
         var closeButton = this.container.querySelector('.dialog-close');
@@ -216,7 +218,7 @@
 
             // historyItem의 uuid를 통해 currentSession 업데이트
             const targetUuid = historyItem.getAttribute("uuid");
-            if (this.currentSession.getUuid() !== targetUuid) {
+            if (this.currentSession?.getUuid() !== targetUuid) {
                 // uuid 다르면 Prompts, Result 다시 초기화
                 const currentSession = this.pixelOnController.getSessionByUuid(targetUuid);
                 this.initDefault_(currentSession.getSpec());
@@ -224,7 +226,7 @@
 
                 // 초기화 이후 변경
                 this.currentSession = currentSession
-            }
+            } 
         }
     };
 
@@ -409,10 +411,6 @@
         allMenus.forEach(function(menu) {
             menu.style.display = 'none';
         });
-    };
-
-    ns.PixelOnDetailController.prototype.onExportClick_ = function () {
-
     };
 
     ns.PixelOnDetailController.prototype.onCloseClick_ = function () {
