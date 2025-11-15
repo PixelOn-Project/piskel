@@ -568,3 +568,6 @@
 #new-session {
   width: auto;
 }
+.button-section .button {
+  width: 100px;
+}

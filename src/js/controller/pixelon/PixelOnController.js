@@ -26,6 +26,9 @@
   // =================================================================
   //                             GETTERS
   // =================================================================
+  ns.PixelOnController.prototype.getPixelOn = function() {
+    return this.pixelOn;
+  }
   ns.PixelOnController.prototype.getWidth = function () {
     return this.pixelOn.getWidth();
   };

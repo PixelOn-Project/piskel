@@ -28,8 +28,9 @@
         this.generateButton = this.container.querySelector('.generate-button');
         this.resultsTitleEl = this.container.querySelector('.results-title');
         this.resultsContainerEl = this.container.querySelector('.result-container');
-
         this.statusTextEl = this.container.querySelector('.status-text');
+        this.btnMoveToFrame = this.container.querySelector('.move-to-frame');
+        this.btnMoveToLayer = this.container.querySelector('.move-to-layer');
 
         // Select Controls
         this.selectControlsEl = this.container.querySelector('.select-controls');
@@ -66,11 +67,17 @@
         this.addEventListener(this.resultsContainerEl, 'click', this.onResultsContentClick_.bind(this));
         this.addEventListener(document, 'click', this.onDocumentClick_.bind(this));
 
+        this.addEventListener(this.btnMoveToFrame, 'click', this.onMoveToFrame_.bind(this));
+        this.addEventListener(this.btnMoveToLayer, 'click', this.onMoveToLayer_.bind(this));
+
         // 현재 조작중인 Session
         this.currentSession = null;
 
         // 새로운 세션 하나 만들어서 뿌림
         this.onNewSessionClick_();
+
+        this.btnMoveToFrame.disabled = true;
+        this.btnMoveToLayer.disabled = true;
     };
 
     // =================================================================
@@ -121,6 +128,7 @@
         this.widthInputEl.value = spec.width;
         this.heightInputEl.value = spec.height;
         this.countInputEl.value = spec.generateCount;
+        this.updateSelectControls_()
     };
     ns.PixelOnDetailController.prototype.getSpec_ = function() {
         // spec 불러오기
@@ -327,8 +335,6 @@
             // createHistoryBlock_ 생성해서 넣기
             this.createHistoryBlock_(currentSession);
         }
-        
-
         // API 보내기
         // 받았다 치고, Image 하나 추가해보기
         setTimeout(this.onResultRecive.bind(this, currentSession.getUuid(), spec, this.sample_data[Math.floor(Math.random() * this.sample_data.length)]), 1000)
@@ -399,8 +405,13 @@
         if (count > 0) {
             this.selectedCountEl.textContent = count + ' selected';
             this.selectControlsEl.style.display = 'flex';
+            this.btnMoveToFrame.disabled = false;
+            this.btnMoveToLayer.disabled = false;
+
         } else {
             this.selectControlsEl.style.display = 'none';
+            this.btnMoveToFrame.disabled = true;
+            this.btnMoveToLayer.disabled = true;
         }
     };
 
@@ -439,6 +450,40 @@
             this.originalParent.insertBefore(this.paletteContainer, this.originalNextSibling)
         }
     }
+    ns.PixelOnDetailController.prototype.onMoveToFrame_ = function(evt) {
+        // 선택된 모든 객체 가져오기
+        const selectedFrames = this.resultsContainerEl.querySelectorAll('.image-frame.selected');
 
+        if (selectedFrames.length > 0) {
+            // 선택된 모든 객체의 이미지 가져오기
 
+            selectedFrames.forEach((element) => {
+                const uuid = element.getAttribute("uuid");
+                const img = this.pixelOnController.getImage(uuid).image;
+
+                pskl.utils.FrameUtils.createFromImageSrc(img, false, this.createImageCallback_.bind(this.piskelController))
+            }, this);
+            
+        }
+
+    }
+    ns.PixelOnDetailController.prototype.onMoveToLayer_ = function(evt) {
+
+    }
+
+    // Utiles
+    // Callback의 this는 생성한 frame임.. -> 되냐이거?
+    ns.PixelOnDetailController.prototype.createImageCallback_ = function(frame) {
+        // 이미지가 로드된 frame을 this(layout)에 addFrame 하고 툴 다시 그림
+        this.addFrameAtCurrentIndex();
+
+        // 리플레이에 기록이 안되서? 되돌리기하면 싹다 돌아감..?
+        const targetFrame = this.getCurrentFrame();
+        targetFrame.setPixels(frame.pixels)
+
+        // 히스토리 기록이 필요? -> 이거 다음에 합시다 시간 없음;;
+    }
+
+    
+    
 })();

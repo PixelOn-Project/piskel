@@ -67,5 +67,8 @@ var Constants = {
   APPENGINE_SAVE_URL : 'save',
 
   // Add PixelOn Constant
-  GENERATE_COUNT: 4
+  GENERATE_COUNT: 4,
+
+  // PixelOn
+  PIXELON_VERSION: 0,
 };
