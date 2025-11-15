@@ -5,6 +5,10 @@
         this.piskelController = piskelController;
         this.pixelOnController = pskl.app.pixelOnController;
         this.args = args;
+        this.sample_data = [
+            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABoElEQVR4AeyV4XIDIQiE2T55++TXXaKJXkG8dm76J46oKCyfJpN82D+3N0D2Agc/GRmne3sGYMfh9TXIbqNIAVSxQfhSwx22BFDBAULuXyx8yRJAFRtEKKDzDUtzUwAAZl9p3kbNZwj5c50MgNWbQIOgijZyJZ3+NKYdBrzkziEZgOKAz9WxVc2LD68YUuxVaK9QVRzOn8XxuERY3NgqgNcrEIKqTLGDQ2UMMcOjuK1aBaDcF4Q8mkAi45F3nQF+aQ0y34+GHQDPQ7uNxC1p/QxY1pyytwG6+JQdOIqTBUfh1jZAmL3YbBD9u5JG7gBQSzqpRnrAxPFPLYzbAZgSAYQ/LEC8PyUHTgXAS/zu9mMtisgNhSoAJU4mMdm0SUd7Mi4v9csAl9Q3gt8AqxfgRzp/bwBMjwqs/R4MeJwPfa/PK4AeszUDoX6ZexkAgP8OAHBxAO7L4ZNpmgzA5J+dFQDYpngVWNkUTGfITylWAJSw5+2saCp2NqaosIzLuFcASqYuHISLdKY8AuPWulcAPTsSP+/12EvzLsAl0TG4Wn8DAAD//1SS+kMAAAAGSURBVAMAarinQckpiIkAAAAASUVORK5CYII=",
+            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABr0lEQVR4AeyUwU0DMRBFHTqgBY40gEQDHKiAGxfuXDhx5kJogFKQaIBqEhpg8RuNN8Os7bW1K4FQov3rmdk/f76dTU7CL3+OBv70CQzx9bCI6fpX6QQYHLZXpwIdKzWNV1tKBuzgH/Fqk1WoaECf+6XnFOB6eL1QNXB9czc28HVo4kVtrpRATU6OPqAPpK6xLFUDMKwJcoCgB/UIBgAZHvPxgj8mJigZ2Dy87YR2ef8qKzdEALEHdUA9rcRsABDnUDIg3PPb5/B4UaUIz97s8KePr5A2kDZkucQ19Q2EJcD8fv8Z2EjUQQ/E8HDVDBxYCyJ7IjmZmoHBNnOEwItQA77empcMyJvcKrKElzMgw+3uGUAOiC2oAVvrib2B7PAewV6uNzD5A+kV9Py592NiwAuslE9+fkm3y8DcbpJoWpVfHA6vakAF4AUbS2Hm1sqfGPCN5GDY7gIgtsj54Hmss3MQw/LlDUiDCsgLyU8MvLyfBUBsYaXpA7Y2F3sD8EcTiAGKnRCNlp6cAfoQGIGJFtAYQV9c2q6SAd+NaCt8bzVvNVAVWfLwaOD/n8Dc+/ENAAD//zmWiXwAAAAGSURBVAMAUL+fQURvOjIAAAAASUVORK5CYII=",
+        ]
     };
     pskl.utils.inherit(ns.PixelOnDetailController, pskl.controller.dialogs.AbstractDialogController);
 
@@ -13,7 +17,7 @@
         this.container = document.querySelector('[data-dialog-id="pixel-on-detail"]');
 
         this.historyListEl = this.container.querySelector('.history-list');
-        this.createSessionButton = this.container.querySelector('.generate-button');
+        this.createSessionButton = this.container.querySelector('#new-session');
         this.positivePromptEl = this.container.querySelector('.positive-prompt');
         this.negativePromptEl = this.container.querySelector('.negative-prompt');
         this.widthInputEl = this.container.querySelector('.resolution-input[data-param="width"]');
@@ -21,7 +25,7 @@
         this.countInputEl = this.container.querySelector('.count-input');
         this.generateButton = this.container.querySelector('.generate-button');
         this.resultsTitleEl = this.container.querySelector('.results-title');
-        this.resultsContentEl = this.container.querySelector('.result-section');
+        this.resultsContainerEl = this.container.querySelector('.result-container');
         this.exportButton = this.container.querySelector('.export-button');
         this.statusTextEl = this.container.querySelector('.status-text');
 
@@ -32,7 +36,7 @@
 
         // Template 추가
         this.historyBlockTemplate_ = pskl.utils.Template.get('history-block-template')
-        this.imageFrameTemplate = pskl.utils.Template.get('image-frame-template')
+        this.imageFrameTemplate_ = pskl.utils.Template.get('image-frame-template')
 
         this.dialogWrapper = this.container.parentNode.parentNode;
 
@@ -45,7 +49,7 @@
 
         // addEventListener
         this.addEventListener(this.dialogWrapper, 'click', this.onCloseFuncs_, true)
-        this.addEventListener(this.createSessionButton, 'click', this.onCreateSessionClick_);
+        this.addEventListener(this.createSessionButton, 'click', this.onNewSessionClick_);
         this.addEventListener(this.generateButton, 'click', this.onGenerateClick_);
         this.addEventListener(this.exportButton, 'click', this.onExportClick_);
         this.addEventListener(this.cancelSelectButton, 'click', this.onCancelSelectClick_.bind(this));
@@ -57,21 +61,24 @@
         this.addEventListener(cancelButton, 'click', this.onCloseClick_);
 
         this.addEventListener(this.historyListEl, 'click', this.onHistoryItemClick_.bind(this));
-        this.addEventListener(this.resultsContentEl, 'click', this.onResultsContentClick_.bind(this));
+        this.addEventListener(this.resultsContainerEl, 'click', this.onResultsContentClick_.bind(this));
         this.addEventListener(document, 'click', this.onDocumentClick_.bind(this));
 
         // 현재 조작중인 Session
-        this.currentSession = this.pixelOnController.getSessions().length > 0? this.pixelOnController.getSessions() : null;
+        this.currentSession = null;
 
-        // 초기화 진행
-        this.initHistoryList_();
-
+        // 새로운 세션 하나 만들어서 뿌림
+        this.onNewSessionClick_();
     };
 
     // =================================================================
     //                         HTML Controller
     // =================================================================
     ns.PixelOnDetailController.prototype.initHistoryList_ = function() {
+        const new_session = this.historyListEl.firstElementChild; 
+        this.historyListEl.innerHTML = '';
+        this.historyListEl.appendChild(new_session);
+
         // PixelOn에 있는 모든 Session에 대한 History 초기화
         const sessions = this.pixelOnController.getSessions();
         if (sessions.length > 0) {
@@ -85,8 +92,52 @@
     ns.PixelOnDetailController.prototype.initResult_ = function(imageList) {
         // 입력받은 imageList로 result를 초기화
         // result 모두 제거
-        // 새로운 객체 생성
+        this.resultsContainerEl.innerHTML = '';
+
+        // imageList가 주어지면 UUID로 값 가지고 와서 새로운 객체 생성
+        imageList.forEach((uuid) => {
+            this.createImageFrame_(this.pixelOnController.getImage(uuid));
+        });
     };
+    ns.PixelOnDetailController.prototype.initDefault_ = function(spec) {
+        // pxielon에 초기 Default 값으로 value 초기화
+        const pixelOn = this.pixelOnController;
+
+        if (!spec) {
+            spec = {
+                p_prompt: "",
+                n_prompt: "",
+                width: pixelOn.getWidth(),
+                height: pixelOn.getWidth(),
+                generateCount: pixelOn.getGenerateCount(),
+            }
+        }
+        
+
+        this.positivePromptEl.value = spec.p_prompt;
+        this.negativePromptEl.value = spec.n_prompt;
+        this.widthInputEl.value = spec.width;
+        this.heightInputEl.value = spec.height;
+        this.countInputEl.value = spec.generateCount;
+    };
+    ns.PixelOnDetailController.prototype.getSpec_ = function() {
+        // spec 불러오기
+        const p_prompt = this.positivePromptEl.value;
+        const n_prompt = this.negativePromptEl.value;
+        const width = this.widthInputEl.value;
+        const height = this.heightInputEl.value;
+        const generateCount = this.countInputEl.value;
+        // TODO: 그 외 더 필요한 Detail 추가
+
+        spec = {
+            p_prompt: p_prompt,
+            n_prompt: n_prompt,
+            width: width,
+            height: height,
+            generateCount: generateCount
+        };
+        return spec;
+    }
     ns.PixelOnDetailController.prototype.createHistoryBlock_ = function(session) {
         // session을 입력 받으면, 가장 위에 HistoryBlock 하나 생성
         // historyListEl (history-list)에 history-block-template 생성해서 넣기
@@ -95,7 +146,8 @@
             'uuid': session.getUuid()
         });
         var historyBlock = pskl.utils.Template.createFromHTML(historyBlockItem);
-        this.historyListEl.insertBefore(historyBlock, this.historyListEl.firstChild.nextSibling);
+        const next = this.historyListEl.firstElementChild.nextElementSibling
+        this.historyListEl.insertBefore(historyBlock, next);
 
         // selected 된거 표시
         var allItems = this.historyListEl.querySelectorAll('.history-block');
@@ -107,24 +159,25 @@
         // 생성된 Block 돌려줌
         return historyBlock;
     }
-    ns.PixelOnDetailController.prototype.updateResult_ = function(sessionUuid, image) {
-        // 입력받은 image가 현재 session에 있으면 ImageFrame 하나 생성
-        // 없으면 무시
-        if (this.currentSession) {
-            if (this.currentSession.getUuid() === sessionUuid) {
-                // ImageFrame 하나 맨 뒤에 생성
-
-            }
-        }
+    ns.PixelOnDetailController.prototype.createImageFrame_ = function(image) {
+        // ImageFrame 하나 맨 뒤에 생성
+        const imageFrameItme = pskl.utils.Template.replace(this.imageFrameTemplate_, {
+            "img": image
+        })
+        const imageFrame = pskl.utils.Template.createFromHTML(imageFrameItme);
+        this.resultsContainerEl.appendChild(imageFrame);
     }
-
-    
 
     // =================================================================
     //                          Event Handler
     // =================================================================
-    ns.PixelOnDetailController.prototype.onCreateSessionClick_ = function (evt) {
-
+    ns.PixelOnDetailController.prototype.onNewSessionClick_ = function (evt) {
+        // 현재 작업중인 Session = null로
+        this.currentSession = null;
+        
+        this.initHistoryList_();
+        this.initDefault_(null);
+        this.initResult_([]);
     };
 
     ns.PixelOnDetailController.prototype.onHistoryItemClick_ = function (evt) {
@@ -160,6 +213,18 @@
                 item.classList.remove('selected');
             });
             historyItem.classList.add('selected');
+
+            // historyItem의 uuid를 통해 currentSession 업데이트
+            const targetUuid = historyItem.getAttribute("uuid");
+            if (this.currentSession.getUuid() !== targetUuid) {
+                // uuid 다르면 Prompts, Result 다시 초기화
+                const currentSession = this.pixelOnController.getSessionByUuid(targetUuid);
+                this.initDefault_(currentSession.getSpec());
+                this.initResult_(currentSession.getImageUuidsList());
+
+                // 초기화 이후 변경
+                this.currentSession = currentSession
+            }
         }
     };
 
@@ -212,7 +277,6 @@
             }
         });
     };
-
     ns.PixelOnDetailController.prototype.disableRenameMode_ = function (input, nameSpan) {
         var newName = input.value.trim();
         if (newName) {
@@ -233,7 +297,6 @@
             return;
         }
     };
-
     ns.PixelOnDetailController.prototype.onDocumentClick_ = function (evt) {
         // history-item-actions 영역 외부를 클릭하면 메뉴를 닫습니다.
         if (!evt.target.closest('.history-item-actions')) {
@@ -244,36 +307,47 @@
             this.closeAllImageMenus_();
         }
     };
-
     ns.PixelOnDetailController.prototype.onGenerateClick_ = function () {
-        // Positive prompt 불러오기
-        const p_prompt = this.positivePromptEl.value;
-        const n_prompt = this.negativePromptEl.value;
-        const width = this.widthInputEl.value;
-        const height = this.heightInputEl.value;
-        const generateCount = this.countInputEl.value;
+        const spec = this.getSpec_();
 
-        // TODO: 그 외 더 필요한 Detail 추가
+        // Session 있으면, 기존 session에 데이터 저장, 없으면 생성
+        currentSession = this.currentSession;
 
-        // Session 생성
-        var session = new pskl.model.pixelOn.AiSession(p_prompt, {
-            p_prompt: p_prompt,
-            n_prompt: n_prompt,
-            width: width,
-            height: height,
-            generateCount: generateCount
-        });
-        // 생성된 session 추가, (항상 맨 뒤에 추가됨)
-        pskl.app.pixelOnController.addSession(session);
+        if (currentSession) {
+            currentSession.setSpec(spec)
+        }
+        else {
+            currentSession =  new pskl.model.pixelOn.AiSession(spec.p_prompt, spec);
+            pskl.app.pixelOnController.addSession(currentSession);
+            // createHistoryBlock_ 생성해서 넣기
+            this.createHistoryBlock_(currentSession);
+        }
+        
 
         // API 보내기
-        
-        // createHistoryBlock_ 생성해서 넣기
-        this.createHistoryBlock_(session);
+        // 받았다 치고, Image 하나 추가해보기
+        setTimeout(this.onResultRecive.bind(this, currentSession.getUuid(), this.sample_data[Math.floor(Math.random() * this.sample_data.length)]), 1000)
 
-        // currentSession 수정
-        this.currentSession = session;
+        // 현재 작업중인 Session 업데이트
+        this.currentSession = currentSession;
     };
+    ns.PixelOnDetailController.prototype.onResultRecive = function(uuid, img) {
+        // uuid: session의 uuid, img: 이미지 (base64png)로 인코딩 되었다고 가정.
+        // 원래 service가 데이터까지 처리하지만, 임시로 controller에서 진행
+        // 1. Image 등록
+        const session = this.pixelOnController.getSessionByUuid(uuid);
+        const imgUuid = this.pixelOnController.addImage(img);
+        
+        // 2. Image UUID Session에 등록
+        if (session) {
+            session.addImageUuid(imgUuid);
+        }
+        // ------------------------ 임시 코드 ------------------------ 
+        // 현재 세션이랑 동일하다면, img 생성
+        if (session === this.currentSession) {
+            this.createImageFrame_(img);
+        }
+    }
 
     ns.PixelOnDetailController.prototype.onResultsContentClick_ = function (evt) {
         var target = evt.target;
@@ -301,7 +375,7 @@
     };
 
     ns.PixelOnDetailController.prototype.updateSelectControls_ = function () {
-        var selectedFrames = this.resultsContentEl.querySelectorAll('.image-frame.selected');
+        var selectedFrames = this.resultsContainerEl.querySelectorAll('.image-frame.selected');
         var count = selectedFrames.length;
 
         if (count > 0) {
@@ -313,7 +387,7 @@
     };
 
     ns.PixelOnDetailController.prototype.onCancelSelectClick_ = function () {
-        var selectedFrames = this.resultsContentEl.querySelectorAll('.image-frame.selected');
+        var selectedFrames = this.resultsContainerEl.querySelectorAll('.image-frame.selected');
         selectedFrames.forEach(function (frame) {
             frame.classList.remove('selected');
         });
@@ -331,7 +405,7 @@
     };
 
     ns.PixelOnDetailController.prototype.closeAllImageMenus_ = function () {
-        var allMenus = this.resultsContentEl.querySelectorAll('.image-menu');
+        var allMenus = this.resultsContainerEl.querySelectorAll('.image-menu');
         allMenus.forEach(function(menu) {
             menu.style.display = 'none';
         });
@@ -351,4 +425,6 @@
             this.originalParent.insertBefore(this.paletteContainer, this.originalNextSibling)
         }
     }
+
+
 })();

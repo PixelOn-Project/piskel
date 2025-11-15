@@ -38,6 +38,9 @@
   ns.AiSession.prototype.getHeight = function() {
     return this.spec.height;
   };
+  ns.AiSession.prototype.getGenerateCount = function() {
+    return this.spec.generateCount;
+  };
   ns.AiSession.prototype.getSpec = function() {
     return this.spec;
   };
@@ -50,6 +53,9 @@
 
   ns.AiSession.prototype.setName = function (name) {
     this.name = name;
+  };
+  ns.AiSession.prototype.setSpec = function (spec) {
+    this.spec = spec;
   };
 
 })();

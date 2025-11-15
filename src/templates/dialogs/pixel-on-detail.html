@@ -18,7 +18,7 @@
                     </div> 
                     <div class="history-contents">
                         <ul class="history-list" id="selectable-list">
-                            <li class="add-frame-action">
+                            <li class="add-frame-action" id="new-session">
                                 <div class="add-frame-action-icon icon-frame-plus-white"></div>
                                 <div class="label">New Session</div>
                             </li>
@@ -71,31 +71,7 @@
                     <div class="result-wrapper">
                         <div class="result-section">
                             <div class="result-container">
-                                <div class="image-frame"><!--이미지 프레임-->
-                                    <div class="image">
-                                        <!-- 이미지가 여기에 표시됩니다. -->
-                                    </div>
-                                    <div class="image-actions">
-                                        <button class="image-menu-button">...</button>
-                                        <div class="image-menu" style="display: none;">
-                                            <button class="image-action-transfer-prompt">Transfer Prompt</button>
-                                            <button class="image-action-delete">Delete</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="image-frame"><!--이미지 프레임-->
-                                    <div class="image">
-                                        <!-- 이미지가 여기에 표시됩니다. -->
-                                    </div>
-                                    <div class="image-actions">
-                                        <button class="image-menu-button">...</button>
-                                        <div class="image-menu" style="display: none;">
-                                            <button class="image-action-transfer-prompt">Transfer Prompt</button>
-                                            <button class="image-action-delete">Delete</button>
-                                        </div>
-                                    </div>
-                                </div>
+                               
                             </div>
                         </div>
 
@@ -128,7 +104,8 @@
 
         <script type="text/template" id="image-frame-template">
             <div class="image-frame">
-                <div class="image"></div>
+                <div class="canvas-background"></div>
+                <div class="image" style="background-repeat: no-repeat; background-image: url(&quot;{{img}}&quot;)"></div>
                 <div class="image-actions">
                     <button class="image-menu-button">...</button>
                     <div class="image-menu" style="display: none;">

@@ -69,6 +69,7 @@
   ns.PixelOnController.prototype.addImage = function(image) {
     const uuid = pskl.utils.Uuid.generate();
     this.pixelOn.addImage(uuid, image);
+    return uuid;
   };
   ns.PixelOnController.prototype.addSession = function(session) {
     this.pixelOn.addSession(session);
