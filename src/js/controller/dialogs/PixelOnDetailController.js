@@ -25,6 +25,11 @@
         this.exportButton = this.container.querySelector('.export-button');
         this.statusTextEl = this.container.querySelector('.status-text');
 
+        // Select Controls
+        this.selectControlsEl = this.container.querySelector('.select-controls');
+        this.selectedCountEl = this.container.querySelector('.selected-count');
+        this.cancelSelectButton = this.container.querySelector('.cancel-select-button');
+
         // Template 추가
         this.historyBlockTemplate_ = pskl.utils.Template.get('history-block-template')
         this.imageFrameTemplate = pskl.utils.Template.get('image-frame-template')
@@ -43,6 +48,7 @@
         this.addEventListener(this.createSessionButton, 'click', this.onCreateSessionClick_);
         this.addEventListener(this.generateButton, 'click', this.onGenerateClick_);
         this.addEventListener(this.exportButton, 'click', this.onExportClick_);
+        this.addEventListener(this.cancelSelectButton, 'click', this.onCancelSelectClick_.bind(this));
 
         var closeButton = this.container.querySelector('.dialog-close');
         this.addEventListener(closeButton, 'click', this.onCloseClick_);
@@ -51,7 +57,7 @@
         this.addEventListener(cancelButton, 'click', this.onCloseClick_);
 
         this.addEventListener(this.historyListEl, 'click', this.onHistoryItemClick_.bind(this));
-        this.addEventListener(this.resultsContentEl, 'click', this.onResultsContentClick_);
+        this.addEventListener(this.resultsContentEl, 'click', this.onResultsContentClick_.bind(this));
         this.addEventListener(document, 'click', this.onDocumentClick_.bind(this));
 
         // 현재 조작중인 Session
@@ -233,6 +239,10 @@
         if (!evt.target.closest('.history-item-actions')) {
             this.closeAllHistoryItemMenus_();
         }
+        // image-actions 영역 외부를 클릭하면 메뉴를 닫습니다.
+        if (!evt.target.closest('.image-actions')) {
+            this.closeAllImageMenus_();
+        }
     };
 
     ns.PixelOnDetailController.prototype.onGenerateClick_ = function () {
@@ -266,7 +276,65 @@
     };
 
     ns.PixelOnDetailController.prototype.onResultsContentClick_ = function (evt) {
+        var target = evt.target;
+        var imageFrame = target.closest('.image-frame');
 
+        if (target.classList.contains('image-menu-button')) {
+            this.toggleImageMenu_(target);
+            return;
+        }
+
+        if (target.classList.contains('image-action-delete')) {
+            if (imageFrame) {
+                imageFrame.remove();
+                this.updateSelectControls_(); // 삭제 후 UI 업데이트
+            }
+            this.closeAllImageMenus_();
+            return;
+        }
+
+        // 메뉴 버튼이나 그 안의 내용이 아닌, 이미지 프레임 자체를 클릭했을 때
+        if (imageFrame && !target.closest('.image-actions')) {
+            imageFrame.classList.toggle('selected');
+            this.updateSelectControls_();
+        }
+    };
+
+    ns.PixelOnDetailController.prototype.updateSelectControls_ = function () {
+        var selectedFrames = this.resultsContentEl.querySelectorAll('.image-frame.selected');
+        var count = selectedFrames.length;
+
+        if (count > 0) {
+            this.selectedCountEl.textContent = count + ' selected';
+            this.selectControlsEl.style.display = 'flex';
+        } else {
+            this.selectControlsEl.style.display = 'none';
+        }
+    };
+
+    ns.PixelOnDetailController.prototype.onCancelSelectClick_ = function () {
+        var selectedFrames = this.resultsContentEl.querySelectorAll('.image-frame.selected');
+        selectedFrames.forEach(function (frame) {
+            frame.classList.remove('selected');
+        });
+        this.updateSelectControls_();
+    };
+
+    ns.PixelOnDetailController.prototype.toggleImageMenu_ = function (button) {
+        var menu = button.nextElementSibling;
+        var isVisible = menu.style.display === 'block';
+        this.closeAllImageMenus_();
+
+        if (!isVisible) {
+            menu.style.display = 'block';
+        }
+    };
+
+    ns.PixelOnDetailController.prototype.closeAllImageMenus_ = function () {
+        var allMenus = this.resultsContentEl.querySelectorAll('.image-menu');
+        allMenus.forEach(function(menu) {
+            menu.style.display = 'none';
+        });
     };
 
     ns.PixelOnDetailController.prototype.onExportClick_ = function () {

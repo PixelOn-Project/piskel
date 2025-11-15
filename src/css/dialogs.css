@@ -52,3 +52,91 @@
     height: 100%;
     position : relative;
 }
+
+/* Image Frame Actions */
+.image-frame {
+    position: relative;
+}
+
+.image-actions {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    z-index: 1;
+}
+
+.image-menu-button {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    line-height: 20px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+}
+
+.image-menu {
+    position: fixed;
+    z-index: 20001; /* 다이얼로그보다 높게 설정 */
+    background-color: #444;
+    border: 1px solid #555;
+    border-radius: 4px;
+    display: none;
+    width: max-content;
+}
+
+.image-menu button {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: white;
+}
+
+.image-menu button:hover {
+    background-color: #555;
+}
+
+/* Image Select Feature */
+.image-frame.selected {
+    border: 2px solid red;
+    background-color: transparent; /* 배경색을 투명으로 명시 */
+    box-sizing: border-box;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.select-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.selected-count {
+    font-size: 14px;
+    color: #ccc;
+}
+
+.cancel-select-button {
+    background: none;
+    border: 1px solid #888;
+    color: #ccc;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cancel-select-button:hover {
+    background-color: #555;
+}
