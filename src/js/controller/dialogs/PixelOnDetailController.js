@@ -29,8 +29,8 @@
         this.resultsTitleEl = this.container.querySelector('.results-title');
         this.resultsContainerEl = this.container.querySelector('.result-container');
         this.statusTextEl = this.container.querySelector('.status-text');
-        this.btnMoveToFrame = this.container.querySelector('.move-to-frame');
-        this.btnMoveToLayer = this.container.querySelector('.move-to-layer');
+        this.btnMoveToFrame = this.container.querySelector('.move-to-frame-button');
+        this.btnMoveToLayer = this.container.querySelector('.move-to-layer-button');
 
         // Select Controls
         this.selectControlsEl = this.container.querySelector('.select-controls');
