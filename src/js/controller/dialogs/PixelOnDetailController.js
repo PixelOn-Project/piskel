@@ -89,7 +89,7 @@
             'uuid': session.getUuid()
         });
         var historyBlock = pskl.utils.Template.createFromHTML(historyBlockItem);
-        this.historyListEl.insertBefore(historyBlock, this.historyListEl.firstChild);
+        this.historyListEl.insertBefore(historyBlock, this.historyListEl.firstChild.nextSibling);
 
         // selected 된거 표시
         var allItems = this.historyListEl.querySelectorAll('.history-block');
@@ -107,6 +107,7 @@
         if (this.currentSession) {
             if (this.currentSession.getUuid() === sessionUuid) {
                 // ImageFrame 하나 맨 뒤에 생성
+
             }
         }
     }
@@ -241,6 +242,7 @@
         const width = this.widthInputEl.value;
         const height = this.heightInputEl.value;
         const generateCount = this.countInputEl.value;
+
         // TODO: 그 외 더 필요한 Detail 추가
 
         // Session 생성
