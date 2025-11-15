@@ -42,11 +42,16 @@
     return this.pixelOn.getSessions();
   }
   ns.PixelOnController.prototype.getSessionAt = function(index) {
-    const sessions = this.getSessions();
+    var sessions = this.getSessions();
     if (index >= 0 && index < sessions.length) {
       return sessions[index];
     }
     return null;
+  }
+  ns.PixelOnController.prototype.getSessionByUuid = function(uuid) {
+    const sessions = this.getSessions();
+    const obj = sessions.find((session) => session.getUuid() == uuid);
+    return obj;
   }
 
   // =================================================================
@@ -54,24 +59,37 @@
   // =================================================================
   ns.PixelOnController.prototype.setWidth = function(width) {
     this.pixelOn.setWidth(width);
-  }
+  };
   ns.PixelOnController.prototype.setHeight = function(height) {
     this.pixelOn.setHeight(height);
-  }
+  };
   ns.PixelOnController.prototype.setGenerateCount = function(count) {
     this.pixelOn.setGenerateCount(count);
-  }
+  };
   ns.PixelOnController.prototype.addImage = function(image) {
     const uuid = pskl.utils.Uuid.generate();
     this.pixelOn.addImage(uuid, image);
-  }
+  };
   ns.PixelOnController.prototype.addSession = function(session) {
     this.pixelOn.addSession(session);
-  }
+  };
   ns.PixelOnController.prototype.removeSession = function(session) {
     this.pixelOn.removeSession(session);
-  }
+  };
   ns.PixelOnController.prototype.removeSessionAt = function(index) {
     this.pixelOn.removeSessionAt(index);
-  }
+  };
+  ns.PixelOnController.prototype.removeSessionByUuid = function(uuid) {
+    var session = this.getSessionByUuid(uuid);
+    if (session) {
+      this.removeSession(session);
+    }
+  };
+  ns.PixelOnController.prototype.renameSession = function(uuid, name) {
+    const session = this.getSessionByUuid(uuid);
+    if (session) {
+      session.setName(name);
+    }
+  };
+  
 })();

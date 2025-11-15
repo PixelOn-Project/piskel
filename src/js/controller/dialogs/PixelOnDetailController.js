@@ -3,6 +3,7 @@
 
     ns.PixelOnDetailController = function (piskelController, args) {
         this.piskelController = piskelController;
+        this.pixelOnController = pskl.app.pixelOnController;
         this.args = args;
     };
     pskl.utils.inherit(ns.PixelOnDetailController, pskl.controller.dialogs.AbstractDialogController);
@@ -37,6 +38,7 @@
 
         this.paletteArea.appendChild(this.paletteContainer)
 
+        // addEventListener
         this.addEventListener(this.dialogWrapper, 'click', this.onCloseFuncs_, true)
         this.addEventListener(this.createSessionButton, 'click', this.onCreateSessionClick_);
         this.addEventListener(this.generateButton, 'click', this.onGenerateClick_);
@@ -51,8 +53,69 @@
         this.addEventListener(this.historyListEl, 'click', this.onHistoryItemClick_.bind(this));
         this.addEventListener(this.resultsContentEl, 'click', this.onResultsContentClick_);
         this.addEventListener(document, 'click', this.onDocumentClick_.bind(this));
+
+        // 현재 조작중인 Session
+        this.currentSession = this.pixelOnController.getSessions().length > 0? this.pixelOnController.getSessions() : null;
+
+        // 초기화 진행
+        this.initHistoryList_();
+
     };
 
+    // =================================================================
+    //                         HTML Controller
+    // =================================================================
+    ns.PixelOnDetailController.prototype.initHistoryList_ = function() {
+        // PixelOn에 있는 모든 Session에 대한 History 초기화
+        const sessions = this.pixelOnController.getSessions();
+        if (sessions.length > 0) {
+            sessions.forEach((session) => {
+                const tmp = this.createHistoryBlock_(session);
+                tmp.classList.remove('selected');
+            })
+        }
+
+    };
+    ns.PixelOnDetailController.prototype.initResult_ = function(imageList) {
+        // 입력받은 imageList로 result를 초기화
+        // result 모두 제거
+        // 새로운 객체 생성
+    };
+    ns.PixelOnDetailController.prototype.createHistoryBlock_ = function(session) {
+        // session을 입력 받으면, 가장 위에 HistoryBlock 하나 생성
+        // historyListEl (history-list)에 history-block-template 생성해서 넣기
+        var historyBlockItem = pskl.utils.Template.replace(this.historyBlockTemplate_, {
+            'historyName': session.getName(),
+            'uuid': session.getUuid()
+        });
+        var historyBlock = pskl.utils.Template.createFromHTML(historyBlockItem);
+        this.historyListEl.insertBefore(historyBlock, this.historyListEl.firstChild);
+
+        // selected 된거 표시
+        var allItems = this.historyListEl.querySelectorAll('.history-block');
+        allItems.forEach(function(item) {
+            item.classList.remove('selected');
+        });
+        historyBlock.classList.add('selected');
+
+        // 생성된 Block 돌려줌
+        return historyBlock;
+    }
+    ns.PixelOnDetailController.prototype.updateResult_ = function(sessionUuid, image) {
+        // 입력받은 image가 현재 session에 있으면 ImageFrame 하나 생성
+        // 없으면 무시
+        if (this.currentSession) {
+            if (this.currentSession.getUuid() === sessionUuid) {
+                // ImageFrame 하나 맨 뒤에 생성
+            }
+        }
+    }
+
+    
+
+    // =================================================================
+    //                          Event Handler
+    // =================================================================
     ns.PixelOnDetailController.prototype.onCreateSessionClick_ = function (evt) {
 
     };
@@ -75,6 +138,8 @@
         if (target.classList.contains('history-item-action-delete')) {
             var historyItem = target.closest('.history-block');
             if (historyItem) {
+                // model 에서도 삭제 기능 추가
+                this.pixelOnController.removeSessionByUuid(historyItem.getAttribute("uuid"));
                 historyItem.remove();
             }
             this.closeAllHistoryItemMenus_();
@@ -127,7 +192,10 @@
 
         var disableRename = this.disableRenameMode_.bind(this, input, nameSpan);
 
-        input.addEventListener('blur', disableRename);
+        input.addEventListener('blur', () => {
+            disableRename();
+            
+        });
         input.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 disableRename();
@@ -142,10 +210,20 @@
         var newName = input.value.trim();
         if (newName) {
             nameSpan.textContent = newName;
+
+            // model에서도 수정 진행
+            const uuid = input.parentElement?.getAttribute("uuid");
+            this.pixelOnController.renameSession(uuid, newName);
         }
+
         nameSpan.style.display = '';
-        if (input.parentNode) {
-            input.parentNode.removeChild(input);
+        try {
+            if (input.parentElement) {
+                input.parentElement.removeChild(input);
+            }
+        }
+        catch(e) {
+            return;
         }
     };
 
@@ -158,32 +236,31 @@
 
     ns.PixelOnDetailController.prototype.onGenerateClick_ = function () {
         // Positive prompt 불러오기
+        const p_prompt = this.positivePromptEl.value;
+        const n_prompt = this.negativePromptEl.value;
+        const width = this.widthInputEl.value;
+        const height = this.heightInputEl.value;
+        const generateCount = this.countInputEl.value;
+        // TODO: 그 외 더 필요한 Detail 추가
 
-        // Negative Prompt 불러오기
-        
-        // Resolution 불러오기
-        // Count 불러오기
+        // Session 생성
+        var session = new pskl.model.pixelOn.AiSession(p_prompt, {
+            p_prompt: p_prompt,
+            n_prompt: n_prompt,
+            width: width,
+            height: height,
+            generateCount: generateCount
+        });
+        // 생성된 session 추가, (항상 맨 뒤에 추가됨)
+        pskl.app.pixelOnController.addSession(session);
+
         // API 보내기
         
-        // historyListEl (history-list)에 history-block-template 생성해서 넣기
-        var historyBlockItem = pskl.utils.Template.replace(this.historyBlockTemplate_, {
-            'historyName': 'prompt_name_here...',
-            'uuid': 'session_uuid_here...'
-        });
-        var historyBlock = pskl.utils.Template.createFromHTML(historyBlockItem);
-        this.historyListEl.insertBefore(historyBlock, this.historyListEl.firstChild);
+        // createHistoryBlock_ 생성해서 넣기
+        this.createHistoryBlock_(session);
 
-        // PixelOn Model에 새로운 AISession 추가하기
-        
-
-        // selected 된거 표시
-        var allItems = this.historyListEl.querySelectorAll('.history-block');
-        allItems.forEach(function(item) {
-            item.classList.remove('selected');
-        });
-        historyBlock.classList.add('selected');
-
-        // API 불러오기
+        // currentSession 수정
+        this.currentSession = session;
     };
 
     ns.PixelOnDetailController.prototype.onResultsContentClick_ = function (evt) {
