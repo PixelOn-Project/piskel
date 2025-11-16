@@ -84,7 +84,7 @@
     //                         HTML Controller
     // =================================================================
     ns.PixelOnDetailController.prototype.initHistoryList_ = function() {
-        const new_session = this.historyListEl.firstElementChild; 
+        const new_session = this.historyListEl.firstElementChild;
         this.historyListEl.innerHTML = '';
         this.historyListEl.appendChild(new_session);
 
@@ -121,7 +121,7 @@
                 generateCount: pixelOn.getGenerateCount(),
             }
         }
-        
+
 
         this.positivePromptEl.value = spec.p_prompt;
         this.negativePromptEl.value = spec.n_prompt;
@@ -185,7 +185,7 @@
     ns.PixelOnDetailController.prototype.onNewSessionClick_ = function (evt) {
         // 현재 작업중인 Session = null로
         this.currentSession = null;
-        
+
         this.initHistoryList_();
         this.initDefault_(null);
         this.initResult_([]);
@@ -235,7 +235,7 @@
 
                 // 초기화 이후 변경
                 this.currentSession = currentSession
-            } 
+            }
         }
     };
 
@@ -277,7 +277,7 @@
 
         input.addEventListener('blur', () => {
             disableRename();
-            
+
         });
         input.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
@@ -348,12 +348,12 @@
         // 1. Image 등록
         const session = this.pixelOnController.getSessionByUuid(uuid);
         const imgUuid = this.pixelOnController.addImage(img, spec);
-        
+
         // 2. Image UUID Session에 등록
         if (session) {
             session.addImageUuid(imgUuid);
         }
-        // ------------------------ 임시 코드 ------------------------ 
+        // ------------------------ 임시 코드 ------------------------
         // 현재 세션이랑 동일하다면, img 생성
         // img말고 uuid를 던져줌 -> 이거 getImage해서 넣어줘야함
         // session도 uuid를 던져줌 -> 이걸로 비교 진행
@@ -450,40 +450,91 @@
             this.originalParent.insertBefore(this.paletteContainer, this.originalNextSibling)
         }
     }
+
     ns.PixelOnDetailController.prototype.onMoveToFrame_ = function(evt) {
-        // 선택된 모든 객체 가져오기
         const selectedFrames = this.resultsContainerEl.querySelectorAll('.image-frame.selected');
-
         if (selectedFrames.length > 0) {
-            // 선택된 모든 객체의 이미지 가져오기
-
+            const promises = [];
             selectedFrames.forEach((element) => {
-                const uuid = element.getAttribute("uuid");
-                const img = this.pixelOnController.getImage(uuid).image;
-
-                pskl.utils.FrameUtils.createFromImageSrc(img, false, this.createImageCallback_.bind(this.piskelController))
+                const promise = new Promise(function(resolve) {
+                    const uuid = element.getAttribute("uuid");
+                    const img = this.pixelOnController.getImage(uuid).image;
+                    const callback = function (frame) {
+                        this.createImageCallback_(frame);
+                        resolve();
+                    }.bind(this);
+                    pskl.utils.FrameUtils.createFromImageSrc(img, false, callback);
+                }.bind(this));
+                promises.push(promise);
             }, this);
-            
+
+            Promise.all(promises).then(function () {
+                // 프레임 추가 작업 전체를 하나의 스냅샷으로 기록
+                $.publish(Events.PISKEL_SAVE_STATE, {
+                    type: pskl.service.HistoryService.SNAPSHOT
+                });
+            }.bind(this));
         }
-
     }
-    ns.PixelOnDetailController.prototype.onMoveToLayer_ = function(evt) {
 
+    ns.PixelOnDetailController.prototype.onMoveToLayer_ = function(evt) {
+        const selectedFrames = this.resultsContainerEl.querySelectorAll('.image-frame.selected');
+        if (selectedFrames.length > 0) {
+            const firstSelected = selectedFrames[0];
+            const uuid = firstSelected.getAttribute("uuid");
+            const img = this.pixelOnController.getImage(uuid).image;
+            pskl.utils.FrameUtils.createFromImageSrc(
+                img,
+                false,
+                this.overwriteCurrentFrameCallback_.bind(this)
+            );
+        }
     }
 
     // Utiles
-    // Callback의 this는 생성한 frame임.. -> 되냐이거?
     ns.PixelOnDetailController.prototype.createImageCallback_ = function(frame) {
-        // 이미지가 로드된 frame을 this(layout)에 addFrame 하고 툴 다시 그림
-        this.addFrameAtCurrentIndex();
-
-        // 리플레이에 기록이 안되서? 되돌리기하면 싹다 돌아감..?
-        const targetFrame = this.getCurrentFrame();
-        targetFrame.setPixels(frame.pixels)
-
-        // 히스토리 기록이 필요? -> 이거 다음에 합시다 시간 없음;;
+        this.piskelController.addFrameAtCurrentIndex();
+        const targetFrame = this.piskelController.getCurrentFrame();
+        targetFrame.setPixels(frame.pixels);
+        // 여기서는 FRAME_DID_UPDATE 이벤트를 쏘지 않는다.
     }
 
-    
-    
+    ns.PixelOnDetailController.prototype.overwriteCurrentFrameCallback_ = function(frame) {
+        const targetFrame = this.piskelController.getCurrentFrame();
+        targetFrame.setPixels(frame.pixels);
+
+        // FRAME_DID_UPDATE 이벤트 제거
+
+        // 현재 프레임 덮어쓰기를 하나의 스냅샷으로 기록
+        $.publish(Events.PISKEL_SAVE_STATE, {
+            type: pskl.service.HistoryService.SNAPSHOT
+        });
+    }
+
+    /**
+     * HistoryService.replayState 에서 호출되는 메서드.
+     * SimplePen.replay(frame, replayData)와 같은 역할을 한다.
+     *
+     * @param {pskl.model.Frame} frame - HistoryService가 넘겨주는 프레임
+     * @param {Object} replayData - 우리가 saveState 때 넘긴 replay 객체
+     */
+    ns.PixelOnDetailController.prototype.replay = function (frame, replayData) {
+		console.log('PixelOn replay', replayData);
+        if (replayData.kind === 'overwrite') {
+            // 현재 프레임 덮어쓰기: frame 파라미터는 HistoryService에서
+            // state.frameIndex / state.layerIndex 기준으로 찾아준 프레임
+            frame.setPixels(replayData.pixels);
+            $.publish(Events.FRAME_DID_UPDATE);
+
+        } else if (replayData.kind === 'addFrames') {
+            // 여러 프레임을 다시 추가
+            // frame 파라미터는 무시하고 piskelController를 사용
+            replayData.frames.forEach(function (f) {
+                this.piskelController.addFrameAtCurrentIndex();
+                var newFrame = this.piskelController.getCurrentFrame();
+                newFrame.setPixels(f.pixels);
+            }, this);
+            $.publish(Events.FRAME_DID_UPDATE);
+        }
+    }
 })();
