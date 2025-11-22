@@ -32,6 +32,10 @@
         this.btnMoveToFrame = this.container.querySelector('.move-to-frame-button');
         this.btnMoveToLayer = this.container.querySelector('.move-to-layer-button');
 
+        // Preset Controls
+        this.presetStatusEl = this.container.querySelector('.preset-status');
+        this.presetButtons = this.container.querySelectorAll('.preset-button');
+
         // Select Controls
         this.selectControlsEl = this.container.querySelector('.select-controls');
         this.selectedCountEl = this.container.querySelector('.selected-count');
@@ -43,17 +47,18 @@
 
         this.dialogWrapper = this.container.parentNode.parentNode;
 
-        this.paletteArea = document.querySelector('.prompt-column .palette-area')
-        this.paletteContainer = document.getElementById("palettes-list-container")
-        this.originalParent = this.paletteContainer.parentNode;
-        this.originalNextSibling = this.paletteContainer.nextSibling
+        // this.paletteArea = document.querySelector('.prompt-column .palette-area')
+        // this.paletteContainer = document.getElementById("palettes-list-container")
+        // this.originalParent = this.paletteContainer.parentNode;
+        // this.originalNextSibling = this.paletteContainer.nextSibling
 
-        this.paletteArea.appendChild(this.paletteContainer)
+        // this.paletteArea.appendChild(this.paletteContainer)
 
         // addEventListener
         this.addEventListener(this.dialogWrapper, 'click', this.onCloseFuncs_, true)
         this.addEventListener(this.createSessionButton, 'click', this.onNewSessionClick_);
         this.addEventListener(this.generateButton, 'click', this.onGenerateClick_);
+        this.addEventListener(this.container.querySelector('.preset-buttons'), 'click', this.onPresetButtonClick_.bind(this));
 
         this.addEventListener(this.cancelSelectButton, 'click', this.onCancelSelectClick_.bind(this));
 
@@ -182,6 +187,26 @@
     // =================================================================
     //                          Event Handler
     // =================================================================
+    ns.PixelOnDetailController.prototype.onPresetButtonClick_ = function (evt) {
+        var clickedButton = evt.target.closest('.preset-button');
+        if (!clickedButton) return;
+
+        var isActive = clickedButton.classList.contains('active');
+
+        // Turn off all buttons
+        this.presetButtons.forEach(function (button) {
+            button.classList.remove('active');
+        });
+
+        // If the button was not active, activate it
+        if (!isActive) {
+            clickedButton.classList.add('active');
+            this.presetStatusEl.textContent = clickedButton.dataset.preset;
+        } else {
+            this.presetStatusEl.textContent = 'None';
+        }
+    };
+
     ns.PixelOnDetailController.prototype.onNewSessionClick_ = function (evt) {
         // 현재 작업중인 Session = null로
         this.currentSession = null;
@@ -355,7 +380,7 @@
         }
         // ------------------------ 임시 코드 ------------------------
         // 현재 세션이랑 동일하다면, img 생성
-        // img말고 uuid를 던져줌 -> 이거 getImage해서 넣어줘야함
+        // img말고 uuid를 던져줌 -> 이걸로 getImage해서 넣어줘야함
         // session도 uuid를 던져줌 -> 이걸로 비교 진행
         if (session === this.currentSession) {
             this.createImageFrame_(imgUuid, this.pixelOnController.getImage(imgUuid));
@@ -441,13 +466,13 @@
     };
 
     ns.PixelOnDetailController.prototype.onCloseClick_ = function () {
-        this.originalParent.insertBefore(this.paletteContainer, this.originalNextSibling)
+        // this.originalParent.insertBefore(this.paletteContainer, this.originalNextSibling)
         this.closeDialog()
     }
 
     ns.PixelOnDetailController.prototype.onCloseFuncs_ = function(evt) {
         if (evt.target === this.dialogWrapper) {
-            this.originalParent.insertBefore(this.paletteContainer, this.originalNextSibling)
+            // this.originalParent.insertBefore(this.paletteContainer, this.originalNextSibling)
         }
     }
 

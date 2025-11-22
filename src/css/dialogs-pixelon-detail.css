@@ -62,6 +62,7 @@
     transform: translate(-50%, -50%);
     margin: 0;
     border: 5px solid var(--highlight-color);
+    border-top: none;
     background-color: var(--bg-dark);
     overflow: hidden;
 }
@@ -117,12 +118,7 @@
     height: 100%;
     box-sizing: border-box;
     position: relative;
-
-    /* 세로 구역 경계선: White 적용 */
-    border-right: 1px solid var(--text-light);
     background-color: var(--bg-medium); /* #404040 적용 */
-
-    /* Result Column 수직 분할을 위해 flex 설정 */
     display: flex;
     flex-direction: column;
 }
@@ -133,10 +129,12 @@
 
 .history-column {
     flex: 0 0 200px;
+    border-right: 1px solid var(--text-light);
 }
 
 .prompt-column {
     flex: 0 0 300px;
+    border-right: 1px solid var(--text-light);
 }
 
 .result-column {
@@ -368,10 +366,10 @@
 }
 
 .prompt-column .prompt-group label {
-  margin-bottom: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #ccc;
+    margin-bottom: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #E0E0E0;
 }
 
 .prompt-column .negative-prompt-label {
@@ -571,4 +569,54 @@
 }
 .button-section .button {
   width: 100px;
+}
+
+/* ================================================================== */
+/*                         PRESET SECTION STYLES                      */
+/* ================================================================== */
+
+.preset-section {
+    padding: 10px;
+    border-top: 1px solid var(--border-original-light);
+    border-bottom: 1px solid var(--border-original-light);
+}
+
+.preset-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.preset-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #E0E0E0;
+}
+
+.preset-status {
+    font-size: 14px;
+    color: #ccc;
+}
+
+.preset-buttons {
+    display: flex;
+    justify-content: space-around;
+}
+
+.preset-button {
+    background-color: var(--bg-medium);
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 20px; /* 캡슐 모양 */
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.preset-button.active {
+    box-shadow: 0 0 8px white;
 }
