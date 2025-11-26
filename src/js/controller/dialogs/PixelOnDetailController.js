@@ -40,6 +40,7 @@
         this.selectControlsEl = this.container.querySelector('.select-controls');
         this.selectedCountEl = this.container.querySelector('.selected-count');
         this.cancelSelectButton = this.container.querySelector('.cancel-select-button');
+        this.deleteSelectButton = this.container.querySelector('.delete-select-button');
 
         // Template 추가
         this.historyBlockTemplate_ = pskl.utils.Template.get('history-block-template')
@@ -61,6 +62,7 @@
         this.addEventListener(this.container.querySelector('.preset-buttons'), 'click', this.onPresetButtonClick_.bind(this));
 
         this.addEventListener(this.cancelSelectButton, 'click', this.onCancelSelectClick_.bind(this));
+        this.addEventListener(this.deleteSelectButton, 'click', this.onDeleteSelectClick_.bind(this));
 
         var closeButton = this.container.querySelector('.dialog-close');
         this.addEventListener(closeButton, 'click', this.onCloseClick_);
@@ -446,6 +448,16 @@
             frame.classList.remove('selected');
         });
         this.updateSelectControls_();
+    };
+
+    ns.PixelOnDetailController.prototype.onDeleteSelectClick_ = function () {
+        var selectedFrames = this.resultsContainerEl.querySelectorAll('.image-frame.selected');
+        selectedFrames.forEach(function (frame) {
+            // model 에서도 해당 이미지 session에서 제거
+            this.currentSession.removeImageUuid(frame.getAttribute("uuid"));
+            frame.remove();
+        }.bind(this));
+        this.updateSelectControls_(); // 삭제 후 UI 업데이트
     };
 
     ns.PixelOnDetailController.prototype.toggleImageMenu_ = function (button) {

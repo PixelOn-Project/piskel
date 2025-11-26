@@ -140,3 +140,16 @@
 .cancel-select-button:hover {
     background-color: #555;
 }
+
+.delete-select-button {
+    background: none;
+    border: 1px solid #888;
+    color: red;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.delete-select-button:hover {
+    background-color: #555;
+}
