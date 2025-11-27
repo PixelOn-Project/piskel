@@ -219,6 +219,7 @@
   "js/service/MouseStateService.js",
   "js/service/performance/PerformanceReport.js",
   "js/service/performance/PerformanceReportService.js",
+  "js/service/SDController.js",
 
   // Tools
   "js/tools/ToolsHelper.js",

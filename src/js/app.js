@@ -34,6 +34,11 @@
       pskl.app.pixelOnController = pixelOnController;
       pixelOnController.init()
 
+      // New SDController
+      var sdController = new pskl.service.SDController();
+      sdController.startHeartbeat();
+       pskl.app.sdController = sdController;
+
       layer.addFrame(frame);
       piskel.addLayer(layer);
 
