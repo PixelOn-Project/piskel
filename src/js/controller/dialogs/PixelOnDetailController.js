@@ -5,18 +5,17 @@
         this.piskelController = piskelController;
         this.pixelOnController = pskl.app.pixelOnController;
         this.args = args;
-
-        this.sample_data = [
-            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABoElEQVR4AeyV4XIDIQiE2T55++TXXaKJXkG8dm76J46oKCyfJpN82D+3N0D2Agc/GRmne3sGYMfh9TXIbqNIAVSxQfhSwx22BFDBAULuXyx8yRJAFRtEKKDzDUtzUwAAZl9p3kbNZwj5c50MgNWbQIOgijZyJZ3+NKYdBrzkziEZgOKAz9WxVc2LD68YUuxVaK9QVRzOn8XxuERY3NgqgNcrEIKqTLGDQ2UMMcOjuK1aBaDcF4Q8mkAi45F3nQF+aQ0y34+GHQDPQ7uNxC1p/QxY1pyytwG6+JQdOIqTBUfh1jZAmL3YbBD9u5JG7gBQSzqpRnrAxPFPLYzbAZgSAYQ/LEC8PyUHTgXAS/zu9mMtisgNhSoAJU4mMdm0SUd7Mi4v9csAl9Q3gt8AqxfgRzp/bwBMjwqs/R4MeJwPfa/PK4AeszUDoX6ZexkAgP8OAHBxAO7L4ZNpmgzA5J+dFQDYpngVWNkUTGfITylWAJSw5+2saCp2NqaosIzLuFcASqYuHISLdKY8AuPWulcAPTsSP+/12EvzLsAl0TG4Wn8DAAD//1SS+kMAAAAGSURBVAMAarinQckpiIkAAAAASUVORK5CYII=",
-            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABr0lEQVR4AeyUwU0DMRBFHTqgBY40gEQDHKiAGxfuXDhx5kJogFKQaIBqEhpg8RuNN8Os7bW1K4FQov3rmdk/f76dTU7CL3+OBv70CQzx9bCI6fpX6QQYHLZXpwIdKzWNV1tKBuzgH/Fqk1WoaECf+6XnFOB6eL1QNXB9czc28HVo4kVtrpRATU6OPqAPpK6xLFUDMKwJcoCgB/UIBgAZHvPxgj8mJigZ2Dy87YR2ef8qKzdEALEHdUA9rcRsABDnUDIg3PPb5/B4UaUIz97s8KePr5A2kDZkucQ19Q2EJcD8fv8Z2EjUQQ/E8HDVDBxYCyJ7IjmZmoHBNnOEwItQA77empcMyJvcKrKElzMgw+3uGUAOiC2oAVvrib2B7PAewV6uNzD5A+kV9Py592NiwAuslE9+fkm3y8DcbpJoWpVfHA6vakAF4AUbS2Hm1sqfGPCN5GDY7gIgtsj54Hmss3MQw/LlDUiDCsgLyU8MvLyfBUBsYaXpA7Y2F3sD8EcTiAGKnRCNlp6cAfoQGIGJFtAYQV9c2q6SAd+NaCt8bzVvNVAVWfLwaOD/n8Dc+/ENAAD//zmWiXwAAAAGSURBVAMAUL+fQURvOjIAAAAASUVORK5CYII=",
-        ]
-        this.sample_count = 0;
     };
     pskl.utils.inherit(ns.PixelOnDetailController, pskl.controller.dialogs.AbstractDialogController);
 
 
     ns.PixelOnDetailController.prototype.init = function () {
         this.container = document.querySelector('[data-dialog-id="pixel-on-detail"]');
+
+        // API
+        this.BASE_URL = 'http://127.0.0.1:5000';
+        this.isGenerating = false;
+        this.abortController = null;
 
         this.historyListEl = this.container.querySelector('.history-list');
         this.createSessionButton = this.container.querySelector('#new-session');
@@ -47,13 +46,6 @@
         this.imageFrameTemplate_ = pskl.utils.Template.get('image-frame-template')
 
         this.dialogWrapper = this.container.parentNode.parentNode;
-
-        // this.paletteArea = document.querySelector('.prompt-column .palette-area')
-        // this.paletteContainer = document.getElementById("palettes-list-container")
-        // this.originalParent = this.paletteContainer.parentNode;
-        // this.originalNextSibling = this.paletteContainer.nextSibling
-
-        // this.paletteArea.appendChild(this.paletteContainer)
 
         // addEventListener
         this.addEventListener(this.dialogWrapper, 'click', this.onCloseFuncs_, true)
@@ -125,7 +117,7 @@
                 n_prompt: "",
                 width: pixelOn.getWidth(),
                 height: pixelOn.getWidth(),
-                generateCount: pixelOn.getGenerateCount(),
+                count: pixelOn.getGenerateCount(),
             }
         }
 
@@ -134,26 +126,25 @@
         this.negativePromptEl.value = spec.n_prompt;
         this.widthInputEl.value = spec.width;
         this.heightInputEl.value = spec.height;
-        this.countInputEl.value = spec.generateCount;
+        this.countInputEl.value = spec.count;
         this.updateSelectControls_()
     };
     ns.PixelOnDetailController.prototype.getSpec_ = function() {
         // spec 불러오기
         const p_prompt = this.positivePromptEl.value;
         const n_prompt = this.negativePromptEl.value;
-        const width = this.widthInputEl.value;
-        const height = this.heightInputEl.value;
-        const generateCount = this.countInputEl.value;
-        // TODO: 그 외 더 필요한 Detail 추가
+        const width = parseInt(this.widthInputEl.value, 10);
+        const height = parseInt(this.heightInputEl.value, 10);
+        const count = parseInt(this.countInputEl.value, 10);
+        // TODO: seed 등 더 필요한 Detail 추가
 
-        spec = {
+        return {
             p_prompt: p_prompt,
             n_prompt: n_prompt,
             width: width,
             height: height,
-            generateCount: generateCount
+            count: count
         };
-        return spec;
     }
     ns.PixelOnDetailController.prototype.createHistoryBlock_ = function(session) {
         // session을 입력 받으면, 가장 위에 HistoryBlock 하나 생성
@@ -185,6 +176,20 @@
         const imageFrame = pskl.utils.Template.createFromHTML(imageFrameItme);
         this.resultsContainerEl.appendChild(imageFrame);
     }
+
+    ns.PixelOnDetailController.prototype.updateUiForGenerationState_ = function(isGenerating, statusMessage) {
+        this.isGenerating = isGenerating;
+        if (isGenerating) {
+            this.generateButton.textContent = 'Stop';
+            this.generateButton.classList.add('stop-button');
+            this.statusTextEl.textContent = statusMessage || 'Generating...';
+        } else {
+            this.generateButton.textContent = 'Generate';
+            this.generateButton.classList.remove('stop-button');
+            this.statusTextEl.textContent = statusMessage || 'Ready';
+        }
+    };
+
 
     // =================================================================
     //                          Event Handler
@@ -345,49 +350,133 @@
             this.closeAllImageMenus_();
         }
     };
+
     ns.PixelOnDetailController.prototype.onGenerateClick_ = function () {
-        const spec = this.getSpec_();
-        spec.p_prompt += this.sample_count++;
-        spec.n_prompt += this.sample_count++;
-
-        // Session 있으면, 기존 session에 데이터 저장, 없으면 생성
-        currentSession = this.currentSession;
-
-        if (currentSession) {
-            currentSession.setSpec(spec)
+        if (this.isGenerating) {
+            this.stopGeneration_();
+        } else {
+            this.startGeneration_();
         }
-        else {
-            currentSession =  new pskl.model.pixelOn.AiSession(spec.p_prompt, spec);
-            pskl.app.pixelOnController.addSession(currentSession);
-            // createHistoryBlock_ 생성해서 넣기
-            this.createHistoryBlock_(currentSession);
-        }
-        // API 보내기
-        // 받았다 치고, Image 하나 추가해보기
-        setTimeout(this.onResultRecive.bind(this, currentSession.getUuid(), spec, this.sample_data[Math.floor(Math.random() * this.sample_data.length)]), 1000)
-
-        // 현재 작업중인 Session 업데이트
-        this.currentSession = currentSession;
     };
-    ns.PixelOnDetailController.prototype.onResultRecive = function(uuid, spec, img) {
-        // uuid: session의 uuid, img: 이미지 (base64png)로 인코딩 되었다고 가정.
-        // 원래 service가 데이터까지 처리하지만, 임시로 controller에서 진행
-        // 1. Image 등록
-        const session = this.pixelOnController.getSessionByUuid(uuid);
-        const imgUuid = this.pixelOnController.addImage(img, spec);
 
-        // 2. Image UUID Session에 등록
-        if (session) {
-            session.addImageUuid(imgUuid);
+    ns.PixelOnDetailController.prototype.startGeneration_ = async function () {
+        const spec = this.getSpec_();
+
+        let currentSession = this.currentSession;
+        if (!currentSession) {
+            currentSession = new pskl.model.pixelOn.AiSession(spec.p_prompt, spec);
+            this.pixelOnController.addSession(currentSession);
+            this.createHistoryBlock_(currentSession);
+            this.currentSession = currentSession;
+        } else {
+            currentSession.setSpec(spec);
         }
-        // ------------------------ 임시 코드 ------------------------
-        // 현재 세션이랑 동일하다면, img 생성
-        // img말고 uuid를 던져줌 -> 이걸로 getImage해서 넣어줘야함
-        // session도 uuid를 던져줌 -> 이걸로 비교 진행
+
+        this.abortController = new AbortController();
+        this.updateUiForGenerationState_(true, 'Connecting to server...');
+
+        try {
+            const response = await fetch(`${this.BASE_URL}/api/generate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    session_id: currentSession.getUuid(),
+                    spec: spec
+                }),
+                signal: this.abortController.signal
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status} ${response.statusText}`);
+            }
+
+            this.updateUiForGenerationState_(true, 'Waiting for stream data...');
+            await this.processStream_(response.body, currentSession.getUuid());
+
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                this.updateUiForGenerationState_(false, 'Generation cancelled.');
+            } else {
+                this.updateUiForGenerationState_(false, `Error: ${error.message}`);
+            }
+        }
+    };
+
+    ns.PixelOnDetailController.prototype.processStream_ = async function (stream, sessionId) {
+        const reader = stream.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) {
+                break;
+            }
+
+            buffer += decoder.decode(value, { stream: true });
+            const events = buffer.split('\n\n');
+            buffer = events.pop(); // Keep the last (potentially incomplete) event in buffer
+
+            for (const event of events) {
+                if (event.startsWith('data:')) {
+                    this.handleSseEvent_(event.substring(5).trim(), sessionId);
+                }
+            }
+        }
+    };
+
+    ns.PixelOnDetailController.prototype.handleSseEvent_ = function (eventData, sessionId) {
+        try {
+            const data = JSON.parse(eventData);
+            switch (data.type) {
+                case 'image':
+                    this.updateUiForGenerationState_(true, `Generating... (${data.current_index}/${data.total_count})`);
+                    this.onImageReceive_(data);
+                    break;
+                case 'done':
+                    this.updateUiForGenerationState_(false, `Generation finished: ${data.status}`);
+                    break;
+                case 'error':
+                    this.updateUiForGenerationState_(false, `Server error: ${data.message}`);
+                    break;
+            }
+        } catch (e) {
+            console.error('Failed to parse SSE event:', eventData, e);
+        }
+    };
+
+
+    ns.PixelOnDetailController.prototype.onImageReceive_ = function(data) {
+        const session = this.pixelOnController.getSessionByUuid(data.session_id);
+        if (!session) return;
+
+        const fullBase64 = `data:image/png;base64,${data.image_base64}`;
+        const imgUuid = this.pixelOnController.addImage(fullBase64, data.spec);
+        session.addImageUuid(imgUuid);
+
         if (session === this.currentSession) {
             this.createImageFrame_(imgUuid, this.pixelOnController.getImage(imgUuid));
         }
-    }
+    };
+
+    ns.PixelOnDetailController.prototype.stopGeneration_ = async function () {
+        if (this.abortController) {
+            this.abortController.abort();
+        }
+
+        try {
+            await fetch(`${this.BASE_URL}/api/stop`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: this.currentSession.getUuid() })
+            });
+        } catch (error) {
+            console.error('Failed to send stop request:', error);
+        }
+    };
+
 
     ns.PixelOnDetailController.prototype.onResultsContentClick_ = function (evt) {
         var target = evt.target;
@@ -478,13 +567,17 @@
     };
 
     ns.PixelOnDetailController.prototype.onCloseClick_ = function () {
-        // this.originalParent.insertBefore(this.paletteContainer, this.originalNextSibling)
+        if (this.isGenerating) {
+            this.stopGeneration_();
+        }
         this.closeDialog()
     }
 
     ns.PixelOnDetailController.prototype.onCloseFuncs_ = function(evt) {
         if (evt.target === this.dialogWrapper) {
-            // this.originalParent.insertBefore(this.paletteContainer, this.originalNextSibling)
+            if (this.isGenerating) {
+                this.stopGeneration_();
+            }
         }
     }
 
