@@ -128,19 +128,19 @@
 /* ========================================= */
 
 .history-column {
-    flex: 2; /* 20% */
+    flex: 4; /* 20% */
     min-width: 0; /* flex item이 수축할 수 있도록 허용 */
     border-right: 1px solid var(--text-light);
 }
 
 .prompt-column {
-    flex: 3; /* 30% */
+    flex: 7; /* 35% */
     min-width: 0;
     border-right: 1px solid var(--text-light);
 }
 
 .result-column {
-    flex: 5; /* 50% */
+    flex: 9; /* 45% */
     min-width: 0;
     border-right: none;
 }
@@ -608,4 +608,10 @@
 
 .preset-button.active {
     box-shadow: 0 0 8px white;
+}
+
+.test-image-button {
+    width: 150px;
+    margin: 10px auto;
+    display: block;
 }

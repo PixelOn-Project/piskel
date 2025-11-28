@@ -25,6 +25,7 @@
         this.heightInputEl = this.container.querySelector('.resolution-input[data-param="height"]');
         this.countInputEl = this.container.querySelector('.count-input');
         this.generateButton = this.container.querySelector('.generate-button');
+        this.testImageButton = this.container.querySelector('.test-image-button');
         this.resultsTitleEl = this.container.querySelector('.results-title');
         this.resultsContainerEl = this.container.querySelector('.result-container');
         this.statusTextEl = this.container.querySelector('.status-text');
@@ -51,6 +52,7 @@
         this.addEventListener(this.dialogWrapper, 'click', this.onCloseFuncs_, true)
         this.addEventListener(this.createSessionButton, 'click', this.onNewSessionClick_);
         this.addEventListener(this.generateButton, 'click', this.onGenerateClick_);
+        this.addEventListener(this.testImageButton, 'click', this.onTestImageClick_.bind(this));
         this.addEventListener(this.container.querySelector('.preset-buttons'), 'click', this.onPresetButtonClick_.bind(this));
 
         this.addEventListener(this.cancelSelectButton, 'click', this.onCancelSelectClick_.bind(this));
@@ -194,6 +196,23 @@
     // =================================================================
     //                          Event Handler
     // =================================================================
+    ns.PixelOnDetailController.prototype.onTestImageClick_ = function () {
+        const spec = this.getSpec_();
+        let currentSession = this.currentSession;
+
+        if (!currentSession) {
+            currentSession = new pskl.model.pixelOn.AiSession("Test Image", spec);
+            this.pixelOnController.addSession(currentSession);
+            this.createHistoryBlock_(currentSession);
+            this.currentSession = currentSession;
+        }
+        
+        const sampleImage = this.pixelOnController.sample_data[Math.floor(Math.random() * this.pixelOnController.sample_data.length)];
+        const imgUuid = this.pixelOnController.addImage(sampleImage, spec);
+        currentSession.addImageUuid(imgUuid);
+        this.createImageFrame_(imgUuid, this.pixelOnController.getImage(imgUuid));
+    };
+
     ns.PixelOnDetailController.prototype.onPresetButtonClick_ = function (evt) {
         var clickedButton = evt.target.closest('.preset-button');
         if (!clickedButton) return;
@@ -625,21 +644,34 @@
     ns.PixelOnDetailController.prototype.createImageCallback_ = function(frame) {
         this.piskelController.addFrameAtCurrentIndex();
         const targetFrame = this.piskelController.getCurrentFrame();
-        targetFrame.setPixels(frame.pixels);
-        // 여기서는 FRAME_DID_UPDATE 이벤트를 쏘지 않는다.
+        this.drawFrameCentered_(targetFrame, frame);
     }
 
     ns.PixelOnDetailController.prototype.overwriteCurrentFrameCallback_ = function(frame) {
         const targetFrame = this.piskelController.getCurrentFrame();
-        targetFrame.setPixels(frame.pixels);
+        targetFrame.clear(); // Clear the frame before drawing
+        this.drawFrameCentered_(targetFrame, frame);
 
-        // FRAME_DID_UPDATE 이벤트 제거
-
-        // 현재 프레임 덮어쓰기를 하나의 스냅샷으로 기록
         $.publish(Events.PISKEL_SAVE_STATE, {
             type: pskl.service.HistoryService.SNAPSHOT
         });
     }
+
+    ns.PixelOnDetailController.prototype.drawFrameCentered_ = function (targetFrame, sourceFrame) {
+        const targetWidth = targetFrame.getWidth();
+        const targetHeight = targetFrame.getHeight();
+        const sourceWidth = sourceFrame.getWidth();
+        const sourceHeight = sourceFrame.getHeight();
+
+        const offsetX = Math.floor((targetWidth - sourceWidth) / 2);
+        const offsetY = Math.floor((targetHeight - sourceHeight) / 2);
+
+        sourceFrame.forEachPixel(function (color, x, y) {
+            if (color !== pskl.utils.colorToInt(Constants.TRANSPARENT_COLOR)) {
+                targetFrame.setPixel(x + offsetX, y + offsetY, color);
+            }
+        });
+    };
 
     /**
      * HistoryService.replayState 에서 호출되는 메서드.
