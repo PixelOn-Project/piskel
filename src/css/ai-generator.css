@@ -37,7 +37,7 @@
     display: flex;
     flex-direction: column;
 
-    gap: 15px; /* 섹션 간 간격 */
+    gap: 5px; /* 섹션 간 간격 수정 */
     margin-top: 5px;
 }
 
@@ -79,6 +79,13 @@
     resize: none;
 }
 
+.status-text {
+    font-size: 11px;
+    color: #FFFFFF;
+    margin-top: 5px;
+    min-height: 14px; /* Prevent layout shift */
+}
+
 /* ============================================== */
 /* 4. Detail / Generate 버튼 섹션 스타일 */
 /* ============================================== */
@@ -91,7 +98,6 @@
     flex-direction: row;
     display: flex;
     gap: 0; /* 버튼 간 간격 제거 (50% 분할 유지) */
-    margin-top: 5px;
 }
 /* AI Generator 버튼 (.ai-generator-button) 스타일 */
 .ai-generator-button {

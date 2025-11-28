@@ -128,17 +128,20 @@
 /* ========================================= */
 
 .history-column {
-    flex: 0 0 200px;
+    flex: 2; /* 20% */
+    min-width: 0; /* flex item이 수축할 수 있도록 허용 */
     border-right: 1px solid var(--text-light);
 }
 
 .prompt-column {
-    flex: 0 0 300px;
+    flex: 3; /* 30% */
+    min-width: 0;
     border-right: 1px solid var(--text-light);
 }
 
 .result-column {
-    flex: 1;
+    flex: 5; /* 50% */
+    min-width: 0;
     border-right: none;
 }
 
@@ -313,12 +316,11 @@
 }
 
 .history-block {
-  padding: 8px;
-  font-size: 14px;
-  white-space: nowrap; 
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: inline-block;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    font-size: 14px;
 }
 .history-block.selected {
   transition: background-color 0.2s ease;
@@ -464,29 +466,16 @@
 }
 
 /* History Item Layout */
-.history-block {
-    position: relative; /* 자식의 absolute 포지셔닝을 위해 */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px;
-    font-size: 14px;
-    white-space: nowrap;
-    /* overflow: hidden; 제거 */
-    text-overflow: ellipsis;
-}
-
 .history-item-name {
-    width: 90%;
+    flex: 1;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    min-width: 0;
 }
 
 .history-item-actions {
-    position: relative;
-    width: 10%;
-    text-align: right;
+    flex-shrink: 0;
 }
 
 .history-item-menu-button {
