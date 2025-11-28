@@ -542,8 +542,7 @@
             this.selectControlsEl.style.display = 'flex';
             this.btnMoveToFrame.disabled = false;
             this.btnMoveToLayer.disabled = false;
-
-        } else {
+} else {
             this.selectControlsEl.style.display = 'none';
             this.btnMoveToFrame.disabled = true;
             this.btnMoveToLayer.disabled = true;
@@ -663,6 +662,10 @@
         const sourceWidth = sourceFrame.getWidth();
         const sourceHeight = sourceFrame.getHeight();
 
+        if (sourceWidth > targetWidth || sourceHeight > targetHeight) {
+            this.showSizeWarningPopup_();
+        }
+
         const offsetX = Math.floor((targetWidth - sourceWidth) / 2);
         const offsetY = Math.floor((targetHeight - sourceHeight) / 2);
 
@@ -671,6 +674,44 @@
                 targetFrame.setPixel(x + offsetX, y + offsetY, color);
             }
         });
+    };
+
+    ns.PixelOnDetailController.prototype.showSizeWarningPopup_ = function () {
+        var soWhatDiv = this.container.querySelector('.so-what');
+        if (!soWhatDiv || soWhatDiv.querySelector('.size-warning-popup')) {
+            return;
+        }
+
+        var popup = document.createElement('div');
+        popup.className = 'size-warning-popup';
+        popup.textContent = 'Images larger than the palette are cut and moved as much as the palette.';
+
+        popup.style.cssText = [
+            'position: absolute',
+            'top: -28px',
+            'left: 0',
+            'right: 0',
+            'background-color: rgba(0, 0, 0, 0.7)',
+            'color: white',
+            'padding: 5px',
+            'border-radius: 3px',
+            'text-align: center',
+            'font-size: 12px',
+            'z-index: 100'
+        ].join(';');
+
+        soWhatDiv.style.position = 'relative';
+        soWhatDiv.insertBefore(popup, soWhatDiv.firstChild);
+
+        setTimeout(function () {
+            popup.style.transition = 'opacity 0.5s';
+            popup.style.opacity = '0';
+            setTimeout(function () {
+                if (popup.parentNode) {
+                    popup.parentNode.removeChild(popup);
+                }
+            }, 500);
+        }, 3000);
     };
 
     /**
