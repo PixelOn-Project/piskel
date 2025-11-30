@@ -615,3 +615,56 @@
     margin: 10px auto;
     display: block;
 }
+
+/* ================================================================== */
+/*                         TAG INPUT STYLES                           */
+/* ================================================================== */
+
+.tag-input-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start; /* Align items to the start for multi-line */
+    gap: 6px;
+    background-color: #2a2a2a;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 8px;
+    min-height: 80px;
+    cursor: text;
+    max-height: 100px; /* Approximately 3 lines */
+    overflow-y: auto;
+}
+
+.tag-item {
+    display: flex;
+    align-items: center;
+    background-color: #555;
+    color: #E0E0E0;
+    border-radius: 12px; /* 캡슐 모양 */
+    padding: 4px 10px;
+    font-size: 14px;
+    white-space: nowrap;
+    flex-shrink: 0; /* Prevent tags from shrinking */
+}
+
+.tag-remove-button {
+    margin-left: 8px;
+    background: none;
+    border: none;
+    color: #E0E0E0;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    line-height: 1;
+}
+
+.tag-input {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #E0E0E0;
+    font-size: 14px;
+    min-width: 100px;
+    padding: 4px 0; /* Align with tag vertical center */
+}

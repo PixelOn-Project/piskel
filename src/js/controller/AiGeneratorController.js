@@ -20,7 +20,8 @@
         this.container = document.querySelector('.ai-generator-container');
         if (!this.container) return;
 
-        this.positivePromptEl = this.container.querySelector('#ai-positive-prompt');
+        this.positivePromptContainer = this.container.querySelector('#ai-positive-prompt');
+        this.positivePromptInput = this.positivePromptContainer.querySelector('.tag-input');
         this.statusTextEl = this.container.querySelector('.status-text');
         this.generateButton = this.container.querySelector('[data-action="generate"]');
 
@@ -29,6 +30,7 @@
         this.abortController = null;
 
         this.initButtons_();
+        this.initTagInput_();
     };
 
     /**
@@ -39,6 +41,11 @@
         buttons.forEach(function(button) {
             button.addEventListener('click', this.onButtonClick_.bind(this));
         }.bind(this));
+    };
+
+    ns.AiGeneratorController.prototype.initTagInput_ = function () {
+        this.positivePromptInput.addEventListener('keydown', this.onTagInputKeyDown_.bind(this, this.positivePromptContainer));
+        this.positivePromptContainer.addEventListener('click', this.onTagContainerClick_.bind(this));
     };
 
     /**
@@ -62,7 +69,7 @@
      * Starts the image generation process.
      */
     ns.AiGeneratorController.prototype.startGeneration_ = async function () {
-        var positivePrompt = this.positivePromptEl.value;
+        var positivePrompt = this.getTagsAsString_(this.positivePromptContainer);
         if (!positivePrompt) {
             this.updateUiForGenerationState_(false, 'Prompt is empty.');
             return;
@@ -189,5 +196,55 @@
             this.generateButton.textContent = 'Generate';
             this.generateButton.classList.remove('stop-button');
         }
+    };
+
+    // =================================================================
+    //                            Tag Management
+    // =================================================================
+
+    ns.AiGeneratorController.prototype.onTagInputKeyDown_ = function (container, event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            var input = event.target;
+            var text = input.value.trim();
+            if (text) {
+                this.addTag_(container, text);
+                input.value = '';
+            }
+        }
+    };
+
+    ns.AiGeneratorController.prototype.onTagContainerClick_ = function (event) {
+        if (event.target.classList.contains('tag-remove-button')) {
+            this.removeTag_(event.target.parentElement);
+        } else if (event.target.classList.contains('tag-input-container')) {
+            event.target.querySelector('.tag-input').focus();
+        }
+    };
+
+    ns.AiGeneratorController.prototype.addTag_ = function (container, text) {
+        var tagItem = document.createElement('div');
+        tagItem.className = 'tag-item';
+        tagItem.textContent = text;
+
+        var removeButton = document.createElement('button');
+        removeButton.className = 'tag-remove-button';
+        removeButton.innerHTML = '&times;';
+        tagItem.appendChild(removeButton);
+
+        var input = container.querySelector('.tag-input');
+        container.insertBefore(tagItem, input);
+    };
+
+    ns.AiGeneratorController.prototype.removeTag_ = function (tagElement) {
+        tagElement.parentElement.removeChild(tagElement);
+    };
+
+    ns.AiGeneratorController.prototype.getTagsAsString_ = function (container) {
+        var tags = [];
+        container.querySelectorAll('.tag-item').forEach(tagElement => {
+            tags.push(tagElement.firstChild.textContent.trim());
+        });
+        return tags.join(', ');
     };
 })();

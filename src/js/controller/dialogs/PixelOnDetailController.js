@@ -19,8 +19,13 @@
 
         this.historyListEl = this.container.querySelector('.history-list');
         this.createSessionButton = this.container.querySelector('#new-session');
-        this.positivePromptEl = this.container.querySelector('.positive-prompt');
-        this.negativePromptEl = this.container.querySelector('.negative-prompt');
+
+        // Tag Inputs
+        this.positivePromptContainer = this.container.querySelector('.positive-prompt-container');
+        this.positivePromptInput = this.positivePromptContainer.querySelector('.tag-input');
+        this.negativePromptContainer = this.container.querySelector('.negative-prompt-container');
+        this.negativePromptInput = this.negativePromptContainer.querySelector('.tag-input');
+
         this.widthInputEl = this.container.querySelector('.resolution-input[data-param="width"]');
         this.heightInputEl = this.container.querySelector('.resolution-input[data-param="height"]');
         this.countInputEl = this.container.querySelector('.count-input');
@@ -41,6 +46,11 @@
         this.selectedCountEl = this.container.querySelector('.selected-count');
         this.cancelSelectButton = this.container.querySelector('.cancel-select-button');
         this.deleteSelectButton = this.container.querySelector('.delete-select-button');
+
+        // Size Warning
+        this.sizeWarningEl = this.createSizeWarningElement_();
+        var resultHeader = this.container.querySelector('.result-header');
+        resultHeader.appendChild(this.sizeWarningEl);
 
         // Template 추가
         this.historyBlockTemplate_ = pskl.utils.Template.get('history-block-template')
@@ -70,6 +80,12 @@
 
         this.addEventListener(this.btnMoveToFrame, 'click', this.onMoveToFrame_.bind(this));
         this.addEventListener(this.btnMoveToLayer, 'click', this.onMoveToLayer_.bind(this));
+
+        // Tag Event Listeners
+        this.addEventListener(this.positivePromptInput, 'keydown', this.onTagInputKeyDown_.bind(this, this.positivePromptContainer));
+        this.addEventListener(this.negativePromptInput, 'keydown', this.onTagInputKeyDown_.bind(this, this.negativePromptContainer));
+        this.addEventListener(this.positivePromptContainer, 'click', this.onTagContainerClick_.bind(this));
+        this.addEventListener(this.negativePromptContainer, 'click', this.onTagContainerClick_.bind(this));
 
         // 현재 조작중인 Session
         this.currentSession = null;
@@ -123,9 +139,16 @@
             }
         }
 
+        this.clearTags_(this.positivePromptContainer);
+        spec.p_prompt.split(',').forEach(tag => {
+            if (tag.trim()) this.addTag_(this.positivePromptContainer, tag.trim());
+        });
 
-        this.positivePromptEl.value = spec.p_prompt;
-        this.negativePromptEl.value = spec.n_prompt;
+        this.clearTags_(this.negativePromptContainer);
+        spec.n_prompt.split(',').forEach(tag => {
+            if (tag.trim()) this.addTag_(this.negativePromptContainer, tag.trim());
+        });
+
         this.widthInputEl.value = spec.width;
         this.heightInputEl.value = spec.height;
         this.countInputEl.value = spec.count;
@@ -133,8 +156,8 @@
     };
     ns.PixelOnDetailController.prototype.getSpec_ = function() {
         // spec 불러오기
-        const p_prompt = this.positivePromptEl.value;
-        const n_prompt = this.negativePromptEl.value;
+        const p_prompt = this.getTagsAsString_(this.positivePromptContainer);
+        const n_prompt = this.getTagsAsString_(this.negativePromptContainer);
         const width = parseInt(this.widthInputEl.value, 10);
         const height = parseInt(this.heightInputEl.value, 10);
         const count = parseInt(this.countInputEl.value, 10);
@@ -542,10 +565,37 @@
             this.selectControlsEl.style.display = 'flex';
             this.btnMoveToFrame.disabled = false;
             this.btnMoveToLayer.disabled = false;
-} else {
+
+            // Check for oversized images
+            var isOversizedSelected = false;
+            var targetWidth = this.piskelController.getWidth();
+            var targetHeight = this.piskelController.getHeight();
+
+            for (var i = 0; i < selectedFrames.length; i++) {
+                var frame = selectedFrames[i];
+                var uuid = frame.getAttribute('uuid');
+                var imageData = this.pixelOnController.getImage(uuid);
+                if (imageData && imageData.spec) {
+                    var sourceWidth = imageData.spec.width;
+                    var sourceHeight = imageData.spec.height;
+                    if (sourceWidth > targetWidth || sourceHeight > targetHeight) {
+                        isOversizedSelected = true;
+                        break;
+                    }
+                }
+            }
+
+            if (isOversizedSelected) {
+                this.sizeWarningEl.style.display = 'inline';
+            } else {
+                this.sizeWarningEl.style.display = 'none';
+            }
+
+        } else {
             this.selectControlsEl.style.display = 'none';
             this.btnMoveToFrame.disabled = true;
             this.btnMoveToLayer.disabled = true;
+            this.sizeWarningEl.style.display = 'none';
         }
     };
 
@@ -639,7 +689,65 @@
         }
     }
 
-    // Utiles
+    // =================================================================
+    //                            Tag Management
+    // =================================================================
+
+    ns.PixelOnDetailController.prototype.onTagInputKeyDown_ = function (container, event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            var input = event.target;
+            var text = input.value.trim();
+            if (text) {
+                this.addTag_(container, text);
+                input.value = '';
+            }
+        }
+    };
+
+    ns.PixelOnDetailController.prototype.onTagContainerClick_ = function (event) {
+        if (event.target.classList.contains('tag-remove-button')) {
+            this.removeTag_(event.target.parentElement);
+        } else if (event.target.classList.contains('tag-input-container')) {
+            event.target.querySelector('.tag-input').focus();
+        }
+    };
+
+    ns.PixelOnDetailController.prototype.addTag_ = function (container, text) {
+        var tagItem = document.createElement('div');
+        tagItem.className = 'tag-item';
+        tagItem.textContent = text;
+
+        var removeButton = document.createElement('button');
+        removeButton.className = 'tag-remove-button';
+        removeButton.innerHTML = '&times;';
+        tagItem.appendChild(removeButton);
+
+        var input = container.querySelector('.tag-input');
+        container.insertBefore(tagItem, input);
+    };
+
+    ns.PixelOnDetailController.prototype.removeTag_ = function (tagElement) {
+        tagElement.parentElement.removeChild(tagElement);
+    };
+
+    ns.PixelOnDetailController.prototype.clearTags_ = function (container) {
+        var tags = container.querySelectorAll('.tag-item');
+        tags.forEach(tag => this.removeTag_(tag));
+    };
+
+    ns.PixelOnDetailController.prototype.getTagsAsString_ = function (container) {
+        var tags = [];
+        container.querySelectorAll('.tag-item').forEach(tagElement => {
+            tags.push(tagElement.firstChild.textContent.trim());
+        });
+        return tags.join(', ');
+    };
+
+
+    // =================================================================
+    //                              Utiles
+    // =================================================================
     ns.PixelOnDetailController.prototype.createImageCallback_ = function(frame) {
         this.piskelController.addFrameAtCurrentIndex();
         const targetFrame = this.piskelController.getCurrentFrame();
@@ -662,10 +770,6 @@
         const sourceWidth = sourceFrame.getWidth();
         const sourceHeight = sourceFrame.getHeight();
 
-        if (sourceWidth > targetWidth || sourceHeight > targetHeight) {
-            this.showSizeWarningPopup_();
-        }
-
         const offsetX = Math.floor((targetWidth - sourceWidth) / 2);
         const offsetY = Math.floor((targetHeight - sourceHeight) / 2);
 
@@ -676,42 +780,15 @@
         });
     };
 
-    ns.PixelOnDetailController.prototype.showSizeWarningPopup_ = function () {
-        var soWhatDiv = this.container.querySelector('.so-what');
-        if (!soWhatDiv || soWhatDiv.querySelector('.size-warning-popup')) {
-            return;
-        }
-
-        var popup = document.createElement('div');
-        popup.className = 'size-warning-popup';
-        popup.textContent = 'Images larger than the palette are cut and moved as much as the palette.';
-
-        popup.style.cssText = [
-            'position: absolute',
-            'top: -28px',
-            'left: 0',
-            'right: 0',
-            'background-color: rgba(0, 0, 0, 0.7)',
-            'color: white',
-            'padding: 5px',
-            'border-radius: 3px',
-            'text-align: center',
-            'font-size: 12px',
-            'z-index: 100'
-        ].join(';');
-
-        soWhatDiv.style.position = 'relative';
-        soWhatDiv.insertBefore(popup, soWhatDiv.firstChild);
-
-        setTimeout(function () {
-            popup.style.transition = 'opacity 0.5s';
-            popup.style.opacity = '0';
-            setTimeout(function () {
-                if (popup.parentNode) {
-                    popup.parentNode.removeChild(popup);
-                }
-            }, 500);
-        }, 3000);
+    ns.PixelOnDetailController.prototype.createSizeWarningElement_ = function () {
+        var warningEl = document.createElement('span');
+        warningEl.className = 'size-warning';
+        warningEl.textContent = 'Images larger than the palette are cut and moved as much as the palette.';
+        warningEl.style.display = 'none'; // Initially hidden
+        warningEl.style.marginLeft = '10px';
+        warningEl.style.color = 'orange';
+        warningEl.style.fontSize = '12px';
+        return warningEl;
     };
 
     /**

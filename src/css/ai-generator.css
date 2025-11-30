@@ -39,6 +39,7 @@
 
     gap: 5px; /* 섹션 간 간격 수정 */
     margin-top: 5px;
+    padding: 0 10px; /* Add padding to the content area */
 }
 
 /* ============================================== */
@@ -48,7 +49,7 @@
 /* **프롬프트 영역의 부모 컨테이너** (.ai-generator-prompt-section) */
 .ai-generator-prompt-section {
     /* [수정] 텍스트 영역에는 상하/좌우 패딩을 유지 (좌우 10px) */
-    padding: 0 10px;
+    padding: 0;
 
     /* [유지] 자식 요소(레이블, 텍스트 영역)를 세로로 나열하도록 변경 */
     flex-direction: column;
@@ -98,6 +99,7 @@
     flex-direction: row;
     display: flex;
     gap: 0; /* 버튼 간 간격 제거 (50% 분할 유지) */
+    margin: 5px -10px 0; /* Align with container edges */
 }
 /* AI Generator 버튼 (.ai-generator-button) 스타일 */
 .ai-generator-button {
@@ -121,4 +123,57 @@
     border-radius: 0;
     text-shadow: 1px 1px 1px rgba(0,0,0,0.4);
     transition: background 0.2s;
+}
+
+/* ================================================================== */
+/*                         TAG INPUT STYLES (AI-GENERATOR)            */
+/* ================================================================== */
+
+.ai-generator-container .tag-input-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start; /* Align items to the start for multi-line */
+    gap: 4px; /* Smaller gap */
+    background-color: #000000;
+    border: 1px solid #ffffff;
+    border-radius: 3px;
+    padding: 5px; /* Smaller padding */
+    min-height: 50px; /* Smaller min-height */
+    cursor: text;
+    max-height: 100px; /* Approximately 5 lines for this smaller component */
+    overflow-y: auto;
+}
+
+.ai-generator-container .tag-item {
+    display: flex;
+    align-items: center;
+    background-color: #555;
+    color: #E0E0E0;
+    border-radius: 10px; /* Smaller capsule */
+    padding: 2px 8px; /* Smaller padding */
+    font-size: 12px; /* Smaller font */
+    white-space: nowrap;
+    flex-shrink: 0; /* Prevent tags from shrinking */
+}
+
+.ai-generator-container .tag-remove-button {
+    margin-left: 6px; /* Smaller margin */
+    background: none;
+    border: none;
+    color: #E0E0E0;
+    cursor: pointer;
+    font-size: 14px; /* Smaller remove icon */
+    padding: 0;
+    line-height: 1;
+}
+
+.ai-generator-container .tag-input {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #E0E0E0;
+    font-size: 12px; /* Smaller font */
+    min-width: 80px; /* Smaller min-width */
+    padding: 2px 0; /* Align with tag vertical center */
 }
