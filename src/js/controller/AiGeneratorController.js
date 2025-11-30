@@ -203,13 +203,18 @@
     // =================================================================
 
     ns.AiGeneratorController.prototype.onTagInputKeyDown_ = function (container, event) {
+        var input = event.target;
         if (event.key === 'Enter') {
             event.preventDefault();
-            var input = event.target;
             var text = input.value.trim();
             if (text) {
                 this.addTag_(container, text);
                 input.value = '';
+            }
+        } else if (event.key === 'Backspace' && input.value === '') {
+            var lastTag = input.previousElementSibling;
+            if (lastTag && lastTag.classList.contains('tag-item')) {
+                this.removeTag_(lastTag);
             }
         }
     };
