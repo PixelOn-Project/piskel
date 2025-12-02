@@ -122,12 +122,19 @@
             <div class="image-frame" uuid="{{uuid}}">
                 <div class="canvas-background"></div>
                 <div class="image" style="background-repeat: no-repeat; background-image: url(&quot;{{img}}&quot;)"></div>
+                
+                <!-- New Overlay Actions UI -->
+                <div class="image-overlay-actions">
+                    <div class="overlay-top">
+                        <button class="button image-action-transfer-prompt">Transfer<br>Prompt</button>
+                    </div>
+                    <div class="overlay-bottom">
+                        <button class="button image-action-delete">Delete</button>
+                    </div>
+                </div>
+
                 <div class="image-actions">
                     <button class="image-menu-button">...</button>
-                    <div class="image-menu" style="display: none;">
-                        <button class="image-action-transfer-prompt">Transfer Prompt</button>
-                        <button class="image-action-delete">Delete</button>
-                    </div>
                 </div>
             </div>
         </script>

@@ -314,19 +314,16 @@
     };
 
     ns.PixelOnDetailController.prototype.toggleHistoryItemMenu_ = function (button) {
-        // 메뉴를 토글하고 다른 메뉴를 닫습니다.
         var menu = button.nextElementSibling;
         var isVisible = menu.style.display === 'block';
         this.closeAllHistoryItemMenus_();
 
         if (!isVisible) {
-            // 메뉴를 표시합니다. 위치는 CSS (position: absolute; top: 100%; right: 0;)가 담당합니다.
             menu.style.display = 'block';
         }
     };
 
     ns.PixelOnDetailController.prototype.closeAllHistoryItemMenus_ = function () {
-        // 열려 있는 모든 이력 항목 메뉴를 닫습니다.
         var allMenus = this.historyListEl.querySelectorAll('.history-item-menu');
         allMenus.forEach(function(menu) {
             menu.style.display = 'none';
@@ -383,13 +380,12 @@
         }
     };
     ns.PixelOnDetailController.prototype.onDocumentClick_ = function (evt) {
-        // history-item-actions 영역 외부를 클릭하면 메뉴를 닫습니다.
         if (!evt.target.closest('.history-item-actions')) {
             this.closeAllHistoryItemMenus_();
         }
-        // image-actions 영역 외부를 클릭하면 메뉴를 닫습니다.
-        if (!evt.target.closest('.image-actions')) {
-            this.closeAllImageMenus_();
+        // Close image overlay if click is outside the image frame
+        if (!evt.target.closest('.image-frame')) {
+            this.closeAllImageActions_();
         }
     };
 
@@ -525,7 +521,7 @@
         var imageFrame = target.closest('.image-frame');
 
         if (target.classList.contains('image-menu-button')) {
-            this.toggleImageMenu_(target);
+            this.toggleImageActions_(imageFrame);
             return;
         }
 
@@ -536,7 +532,7 @@
                 this.currentSession.removeImageUuid(imageFrame.getAttribute("uuid"));
                 this.updateSelectControls_(); // 삭제 후 UI 업데이트
             }
-            this.closeAllImageMenus_();
+            this.closeAllImageActions_();
             return;
         }
 
@@ -545,12 +541,12 @@
                 // 내용 변경
                 this.initDefault_(this.pixelOnController.getImage(imageFrame.getAttribute("uuid")).spec);
             }
-            this.closeAllImageMenus_();
+            this.closeAllImageActions_();
             return;
         }
 
         // 메뉴 버튼이나 그 안의 내용이 아닌, 이미지 프레임 자체를 클릭했을 때
-        if (imageFrame && !target.closest('.image-actions')) {
+        if (imageFrame && !target.closest('.image-overlay-actions')) {
             imageFrame.classList.toggle('selected');
             this.updateSelectControls_();
         }
@@ -617,20 +613,18 @@
         this.updateSelectControls_(); // 삭제 후 UI 업데이트
     };
 
-    ns.PixelOnDetailController.prototype.toggleImageMenu_ = function (button) {
-        var menu = button.nextElementSibling;
-        var isVisible = menu.style.display === 'block';
-        this.closeAllImageMenus_();
-
-        if (!isVisible) {
-            menu.style.display = 'block';
+    ns.PixelOnDetailController.prototype.toggleImageActions_ = function (imageFrame) {
+        var isOpen = imageFrame.classList.contains('actions-open');
+        this.closeAllImageActions_();
+        if (!isOpen) {
+            imageFrame.classList.add('actions-open');
         }
     };
 
-    ns.PixelOnDetailController.prototype.closeAllImageMenus_ = function () {
-        var allMenus = this.resultsContainerEl.querySelectorAll('.image-menu');
-        allMenus.forEach(function(menu) {
-            menu.style.display = 'none';
+    ns.PixelOnDetailController.prototype.closeAllImageActions_ = function () {
+        var allFrames = this.resultsContainerEl.querySelectorAll('.image-frame');
+        allFrames.forEach(function(frame) {
+            frame.classList.remove('actions-open');
         });
     };
 
