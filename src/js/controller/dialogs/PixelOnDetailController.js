@@ -51,7 +51,7 @@
         // Size Warning
         this.sizeWarningEl = this.createSizeWarningElement_();
         var resultHeader = this.container.querySelector('.result-header');
-        resultHeader.appendChild(this.sizeWarningEl);
+        // resultHeader.appendChild(this.sizeWarningEl); // Warning is now shown as a tooltip on buttons.
 
         // Template 추가
         this.historyBlockTemplate_ = pskl.utils.Template.get('history-block-template')
@@ -572,6 +572,7 @@
     ns.PixelOnDetailController.prototype.updateSelectControls_ = function () {
         var selectedFrames = this.resultsContainerEl.querySelectorAll('.image-frame.selected');
         var count = selectedFrames.length;
+        var buttons = [this.btnMoveToFrame, this.btnMoveToLayer];
 
         if (count > 0) {
             this.selectedCountEl.textContent = count + ' selected';
@@ -586,29 +587,52 @@
 
             for (var i = 0; i < selectedFrames.length; i++) {
                 var frame = selectedFrames[i];
-                var uuid = frame.getAttribute('uuid');
-                var imageData = this.pixelOnController.getImage(uuid);
-                if (imageData && imageData.spec) {
-                    var sourceWidth = imageData.spec.width;
-                    var sourceHeight = imageData.spec.height;
+                var imgElement = frame.querySelector('.image-dimensions-source');
+
+                if (imgElement) {
+                    var sourceWidth = imgElement.naturalWidth;
+                    var sourceHeight = imgElement.naturalHeight;
+                    console.log("Comparing: Image " + sourceWidth + "x" + sourceHeight + " with Palette " + targetWidth + "x" + targetHeight);
                     if (sourceWidth > targetWidth || sourceHeight > targetHeight) {
                         isOversizedSelected = true;
+                        console.log("Oversized image detected.");
                         break;
                     }
                 }
             }
 
-            if (isOversizedSelected) {
-                this.sizeWarningEl.style.display = 'block';
-            } else {
-                this.sizeWarningEl.style.display = 'none';
-            }
+            var warningMessage = this.sizeWarningEl.textContent;
+            buttons.forEach(function(button) {
+                if (isOversizedSelected) {
+                    button.setAttribute('rel', 'tooltip');
+                    button.setAttribute('data-placement', 'top');
+                    button.setAttribute('title', warningMessage);
+                    $(button).tooltip('fixTitle');
+                } else {
+                    // Ensure tooltip is removed and hidden if it was previously visible
+                    if (button.hasAttribute('rel')) {
+                        $(button).tooltip('hide');
+                        button.removeAttribute('rel');
+                        button.removeAttribute('title');
+                        button.removeAttribute('data-placement');
+                    }
+                }
+            });
 
         } else {
             this.selectControlsEl.style.display = 'none';
             this.btnMoveToFrame.disabled = true;
             this.btnMoveToLayer.disabled = true;
-            this.sizeWarningEl.style.display = 'none';
+
+            // Ensure tooltips are removed when no items are selected
+            buttons.forEach(function(button) {
+                if (button.hasAttribute('rel')) {
+                    $(button).tooltip('hide');
+                    button.removeAttribute('rel');
+                    button.removeAttribute('title');
+                    button.removeAttribute('data-placement');
+                }
+            });
         }
     };
 
@@ -799,8 +823,9 @@
     ns.PixelOnDetailController.prototype.createSizeWarningElement_ = function () {
         var warningEl = document.createElement('span');
         warningEl.className = 'size-warning';
-        warningEl.textContent = 'Images larger than the palette are cut and moved as much as the palette.';
-        // Styles are now controlled by CSS
+        warningEl.textContent = "Selected Image's size is bigger than Palette.";
+        // This element is now only used to hold the text for the tooltip.
+        warningEl.style.display = 'none';
         return warningEl;
     };
 

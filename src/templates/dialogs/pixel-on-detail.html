@@ -99,9 +99,9 @@
                                     <span class="status-text"></span>
                                 </div>
                                 <div class="result-actions-group">
-                                    <button class="button move-to-frame-button">Move to Frame
+                                    <button class="button move-to-frame-button" rel="tooltip" data-placement="top" title="Move selected images to new frames">Move to Frame
                                     </button>
-                                    <button class="button move-to-layer-button">Move to Layer
+                                    <button class="button move-to-layer-button" rel="tooltip" data-placement="top" title="Move selected image to a new layer">Move to Layer
                                     </button>
                                 </div>
                             </div>
@@ -121,6 +121,7 @@
         <script type="text/template" id="image-frame-template">
             <div class="image-frame" uuid="{{uuid}}">
                 <div class="canvas-background"></div>
+                <img class="image-dimensions-source" src="{{img}}" style="display: none;" />
                 <div class="image" style="background-repeat: no-repeat; background-image: url(&quot;{{img}}&quot;)"></div>
                 <div class="image-actions">
                     <button class="image-menu-button">...</button>
@@ -135,7 +136,7 @@
         <script type="text/template" id="history-block-template">
             <li class="history-block" uuid="{{uuid}}">
                 <span class="history-item-name">{{historyName}}</span>
-                <div class="history-item-actions">
+                <div class.history-item-actions">
                     <button class="history-item-menu-button">...</button>
                     <div class="history-item-menu" style="display: none;">
                         <button class="history-item-action-rename">Rename</button>
