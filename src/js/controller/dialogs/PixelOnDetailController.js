@@ -39,6 +39,7 @@
 
         // Preset Controls
         this.presetStatusEl = this.container.querySelector('.preset-status');
+        this.presetButtonsContainer = this.container.querySelector('.preset-buttons');
         this.presetButtons = this.container.querySelectorAll('.preset-button');
 
         // Select Controls
@@ -63,7 +64,7 @@
         this.addEventListener(this.createSessionButton, 'click', this.onNewSessionClick_);
         this.addEventListener(this.generateButton, 'click', this.onGenerateClick_);
         this.addEventListener(this.testImageButton, 'click', this.onTestImageClick_.bind(this));
-        this.addEventListener(this.container.querySelector('.preset-buttons'), 'click', this.onPresetButtonClick_.bind(this));
+        this.addEventListener(this.presetButtonsContainer, 'click', this.onPresetButtonClick_.bind(this));
 
         this.addEventListener(this.cancelSelectButton, 'click', this.onCancelSelectClick_.bind(this));
         this.addEventListener(this.deleteSelectButton, 'click', this.onDeleteSelectClick_.bind(this));
@@ -136,6 +137,7 @@
                 width: pixelOn.getWidth(),
                 height: pixelOn.getWidth(),
                 count: pixelOn.getGenerateCount(),
+                presset: "normal" // Default preset
             }
         }
 
@@ -152,7 +154,16 @@
         this.widthInputEl.value = spec.width;
         this.heightInputEl.value = spec.height;
         this.countInputEl.value = spec.count;
-        this.updateSelectControls_()
+        this.updateSelectControls_();
+        
+        // Update preset buttons
+        this.presetButtons.forEach(function(button) {
+            button.classList.remove('active');
+            if (button.dataset.preset === (spec.presset || "normal")) {
+                button.classList.add('active');
+            }
+        });
+        this.updatePresetStatus_();
     };
     ns.PixelOnDetailController.prototype.getSpec_ = function() {
         // spec 불러오기
@@ -161,14 +172,17 @@
         const width = parseInt(this.widthInputEl.value, 10);
         const height = parseInt(this.heightInputEl.value, 10);
         const count = parseInt(this.countInputEl.value, 10);
-        // TODO: seed 등 더 필요한 Detail 추가
+        
+        const activeButton = this.presetButtonsContainer.querySelector('.preset-button.active');
+        const presset = activeButton ? activeButton.dataset.preset : 'normal';
 
         return {
             p_prompt: p_prompt,
             n_prompt: n_prompt,
             width: width,
             height: height,
-            count: count
+            count: count,
+            presset: presset
         };
     }
     ns.PixelOnDetailController.prototype.createHistoryBlock_ = function(session) {
@@ -240,17 +254,20 @@
         var clickedButton = evt.target.closest('.preset-button');
         if (!clickedButton) return;
 
-        var isActive = clickedButton.classList.contains('active');
-
         // Turn off all buttons
         this.presetButtons.forEach(function (button) {
             button.classList.remove('active');
         });
 
-        // If the button was not active, activate it
-        if (!isActive) {
-            clickedButton.classList.add('active');
-            this.presetStatusEl.textContent = clickedButton.dataset.preset;
+        // Activate the clicked one
+        clickedButton.classList.add('active');
+        this.updatePresetStatus_();
+    };
+
+    ns.PixelOnDetailController.prototype.updatePresetStatus_ = function() {
+        var activeButton = this.presetButtonsContainer.querySelector('.preset-button.active');
+        if (activeButton) {
+            this.presetStatusEl.textContent = activeButton.textContent;
         } else {
             this.presetStatusEl.textContent = 'None';
         }
@@ -582,7 +599,7 @@
             }
 
             if (isOversizedSelected) {
-                this.sizeWarningEl.style.display = 'inline';
+                this.sizeWarningEl.style.display = 'block';
             } else {
                 this.sizeWarningEl.style.display = 'none';
             }
@@ -783,10 +800,7 @@
         var warningEl = document.createElement('span');
         warningEl.className = 'size-warning';
         warningEl.textContent = 'Images larger than the palette are cut and moved as much as the palette.';
-        warningEl.style.display = 'none'; // Initially hidden
-        warningEl.style.marginLeft = '10px';
-        warningEl.style.color = 'orange';
-        warningEl.style.fontSize = '12px';
+        // Styles are now controlled by CSS
         return warningEl;
     };
 
