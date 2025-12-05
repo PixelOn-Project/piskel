@@ -4,7 +4,9 @@
     ns.PixelOnDetailController = function (piskelController, args) {
         this.piskelController = piskelController;
         this.pixelOnController = pskl.app.pixelOnController;
+        this.sdController = pskl.app.sdController; // Get SDController instance
         this.args = args;
+        this.callbackId = 'pixel-on-detail'; // Unique ID for callbacks
     };
     pskl.utils.inherit(ns.PixelOnDetailController, pskl.controller.dialogs.AbstractDialogController);
 
@@ -12,10 +14,7 @@
     ns.PixelOnDetailController.prototype.init = function () {
         this.container = document.querySelector('[data-dialog-id="pixel-on-detail"]');
 
-        // API
-        this.BASE_URL = 'http://127.0.0.1:5000';
-        this.isGenerating = false;
-        this.abortController = null;
+        this.isGenerating = false; // This will be managed by SDController's state
 
         this.historyListEl = this.container.querySelector('.history-list');
         this.createSessionButton = this.container.querySelector('#new-session');
@@ -31,7 +30,6 @@
         this.countInputEl = this.container.querySelector('.count-input');
         this.generateButton = this.container.querySelector('.generate-button');
         this.testImageButton = this.container.querySelector('.test-image-button');
-        this.resultsTitleEl = this.container.querySelector('.results-title');
         this.resultsContainerEl = this.container.querySelector('.result-container');
         this.statusTextEl = this.container.querySelector('.status-text');
         this.btnMoveToFrame = this.container.querySelector('.move-to-frame-button');
@@ -50,14 +48,20 @@
 
         // Size Warning
         this.sizeWarningEl = this.createSizeWarningElement_();
-        var resultHeader = this.container.querySelector('.result-header');
-        // resultHeader.appendChild(this.sizeWarningEl); // Warning is now shown as a tooltip on buttons.
 
         // Template 추가
         this.historyBlockTemplate_ = pskl.utils.Template.get('history-block-template')
         this.imageFrameTemplate_ = pskl.utils.Template.get('image-frame-template')
 
         this.dialogWrapper = this.container.parentNode.parentNode;
+
+        // Register callbacks with SDController
+        this.sdController.registerCallbacks(this.callbackId, {
+            onProgress: this.updateUiForGenerationState_.bind(this),
+            onImage: this.onImageReceive_.bind(this),
+            onDone: this.onGenerationDone_.bind(this),
+            onError: this.onGenerationError_.bind(this)
+        });
 
         // addEventListener
         this.addEventListener(this.dialogWrapper, 'click', this.onCloseFuncs_, true)
@@ -414,7 +418,7 @@
         }
     };
 
-    ns.PixelOnDetailController.prototype.startGeneration_ = async function () {
+    ns.PixelOnDetailController.prototype.startGeneration_ = function () {
         const spec = this.getSpec_();
 
         let currentSession = this.currentSession;
@@ -427,83 +431,21 @@
             currentSession.setSpec(spec);
         }
 
-        this.abortController = new AbortController();
-        this.updateUiForGenerationState_(true, 'Connecting to server...');
+        this.sdController.generate(spec, currentSession.getUuid());
+    };
 
-        try {
-            const response = await fetch(`${this.BASE_URL}/api/generate`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    session_id: currentSession.getUuid(),
-                    spec: spec
-                }),
-                signal: this.abortController.signal
-            });
-
-            if (!response.ok) {
-                throw new Error(`Server error: ${response.status} ${response.statusText}`);
-            }
-
-            this.updateUiForGenerationState_(true, 'Waiting for stream data...');
-            await this.processStream_(response.body, currentSession.getUuid());
-
-        } catch (error) {
-            if (error.name === 'AbortError') {
-                this.updateUiForGenerationState_(false, 'Generation cancelled.');
-            } else {
-                this.updateUiForGenerationState_(false, `Error: ${error.message}`);
-            }
+    ns.PixelOnDetailController.prototype.stopGeneration_ = function () {
+        if (this.currentSession) {
+            this.sdController.stop(this.currentSession.getUuid());
         }
     };
 
-    ns.PixelOnDetailController.prototype.processStream_ = async function (stream, sessionId) {
-        const reader = stream.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) {
-                break;
-            }
-
-            buffer += decoder.decode(value, { stream: true });
-            const events = buffer.split('\n\n');
-            buffer = events.pop(); // Keep the last (potentially incomplete) event in buffer
-
-            for (const event of events) {
-                if (event.startsWith('data:')) {
-                    this.handleSseEvent_(event.substring(5).trim(), sessionId);
-                }
-            }
-        }
-    };
-
-    ns.PixelOnDetailController.prototype.handleSseEvent_ = function (eventData, sessionId) {
-        try {
-            const data = JSON.parse(eventData);
-            switch (data.type) {
-                case 'image':
-                    this.updateUiForGenerationState_(true, `Generating... (${data.current_index}/${data.total_count})`);
-                    this.onImageReceive_(data);
-                    break;
-                case 'done':
-                    this.updateUiForGenerationState_(false, `Generation finished: ${data.status}`);
-                    break;
-                case 'error':
-                    this.updateUiForGenerationState_(false, `Server error: ${data.message}`);
-                    break;
-            }
-        } catch (e) {
-            console.error('Failed to parse SSE event:', eventData, e);
-        }
-    };
-
+    // =================================================================
+    //                         SDController Callbacks
+    // =================================================================
 
     ns.PixelOnDetailController.prototype.onImageReceive_ = function(data) {
+        // Check if the image belongs to any session this controller knows about.
         const session = this.pixelOnController.getSessionByUuid(data.session_id);
         if (!session) return;
 
@@ -511,25 +453,20 @@
         const imgUuid = this.pixelOnController.addImage(fullBase64, data.spec);
         session.addImageUuid(imgUuid);
 
-        if (session === this.currentSession) {
+        // Only update the UI if the received image belongs to the currently active session.
+        if (this.currentSession && session.getUuid() === this.currentSession.getUuid()) {
             this.createImageFrame_(imgUuid, this.pixelOnController.getImage(imgUuid));
         }
     };
 
-    ns.PixelOnDetailController.prototype.stopGeneration_ = async function () {
-        if (this.abortController) {
-            this.abortController.abort();
-        }
+    ns.PixelOnDetailController.prototype.onGenerationDone_ = function(data) {
+        // Optional: Handle anything when the entire generation process is complete.
+        console.log('Generation finished:', data.status);
+    };
 
-        try {
-            await fetch(`${this.BASE_URL}/api/stop`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ session_id: this.currentSession.getUuid() })
-            });
-        } catch (error) {
-            console.error('Failed to send stop request:', error);
-        }
+    ns.PixelOnDetailController.prototype.onGenerationError_ = function(errorMessage) {
+        // The onProgress callback already updates the UI, but you can add more specific error handling here.
+        console.error("Generation Error reported to Dialog:", errorMessage);
     };
 
 
@@ -673,7 +610,8 @@
         if (this.isGenerating) {
             this.stopGeneration_();
         }
-        this.closeDialog()
+        this.sdController.unregisterCallbacks(this.callbackId); // Unregister callbacks
+        this.closeDialog();
     }
 
     ns.PixelOnDetailController.prototype.onCloseFuncs_ = function(evt) {

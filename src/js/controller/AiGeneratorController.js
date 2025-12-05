@@ -11,6 +11,9 @@
     ns.AiGeneratorController = function (piskelController) {
         this.piskelController = piskelController;
         this.pixelOnController = pskl.app.pixelOnController;
+        this.sdController = pskl.app.sdController; // Get SDController instance
+        this.callbackId = 'ai-generator'; // Unique ID for callbacks
+        this.currentSessionId = null; // To keep track of the session initiated by this controller
     };
 
     /**
@@ -25,12 +28,20 @@
         this.statusTextEl = this.container.querySelector('.status-text');
         this.generateButton = this.container.querySelector('[data-action="generate"]');
 
-        this.BASE_URL = 'http://127.0.0.1:5000';
-        this.isGenerating = false;
-        this.abortController = null;
+        this.isGenerating = false; // This will be managed by SDController's state
+
+        // Register callbacks with SDController
+        this.sdController.registerCallbacks(this.callbackId, {
+            onProgress: this.updateUiForGenerationState_.bind(this),
+            onImage: this.onImageReceive_.bind(this),
+            onError: this.onGenerationError_.bind(this)
+        });
 
         this.initButtons_();
         this.initTagInput_();
+
+        // Optional: Add a mechanism to unregister callbacks when the controller is destroyed.
+        // For simplicity, we'll leave it for now as this controller is long-lived.
     };
 
     /**
@@ -58,17 +69,21 @@
             $.publish(Events.DIALOG_SHOW, { dialogId: 'pixel-on-detail' });
         } else if (action === 'generate') {
             if (this.isGenerating) {
-                this.stopGeneration_();
+                // Stop generation
+                if (this.currentSessionId) {
+                    this.sdController.stop(this.currentSessionId);
+                }
             } else {
+                // Start generation
                 this.startGeneration_();
             }
         }
     };
 
     /**
-     * Starts the image generation process.
+     * Starts the image generation process by calling the SDController.
      */
-    ns.AiGeneratorController.prototype.startGeneration_ = async function () {
+    ns.AiGeneratorController.prototype.startGeneration_ = function () {
         var positivePrompt = this.getTagsAsString_(this.positivePromptContainer);
         if (!positivePrompt) {
             this.updateUiForGenerationState_(false, 'Prompt is empty.');
@@ -78,98 +93,34 @@
         var currentPiskel = this.piskelController.getPiskel();
         var spec = {
             p_prompt: positivePrompt,
-            n_prompt: "",
+            n_prompt: "", // No negative prompt in the simple view
             width: currentPiskel.width,
             height: currentPiskel.height,
-            count: 1
+            count: 1 // Generate a single image
         };
 
+        // Create a temporary session for this generation
         var session = new pskl.model.pixelOn.AiSession(spec.p_prompt, spec);
         this.pixelOnController.addSession(session);
+        this.currentSessionId = session.getUuid();
 
-        this.abortController = new AbortController();
-        this.updateUiForGenerationState_(true, 'Connecting...');
-
-        try {
-            const response = await fetch(`${this.BASE_URL}/api/generate`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ session_id: session.getUuid(), spec: spec }),
-                signal: this.abortController.signal
-            });
-
-            if (!response.ok) throw new Error(`Server error: ${response.status}`);
-
-            await this.processStream_(response.body, session);
-        } catch (error) {
-            if (error.name === 'AbortError') {
-                this.updateUiForGenerationState_(false, 'Cancelled.');
-            } else {
-                this.updateUiForGenerationState_(false, `Error: ${error.message}`);
-            }
-        }
-    };
-
-    /**
-     * Stops the image generation process.
-     */
-    ns.AiGeneratorController.prototype.stopGeneration_ = async function () {
-        if (this.abortController) {
-            this.abortController.abort();
-        }
-    };
-
-    /**
-     * Processes the SSE stream from the server.
-     */
-    ns.AiGeneratorController.prototype.processStream_ = async function (stream, session) {
-        const reader = stream.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-            const events = buffer.split('\n\n');
-            buffer = events.pop();
-
-            for (const event of events) {
-                if (event.startsWith('data:')) {
-                    this.handleSseEvent_(event.substring(5).trim(), session);
-                }
-            }
-        }
-    };
-
-    /**
-     * Handles individual SSE events.
-     */
-    ns.AiGeneratorController.prototype.handleSseEvent_ = function (eventData, session) {
-        try {
-            const data = JSON.parse(eventData);
-            switch (data.type) {
-                case 'image':
-                    this.updateUiForGenerationState_(true, `Generating... (${data.current_index}/${data.total_count})`);
-                    this.onImageReceive_(data, session);
-                    break;
-                case 'done':
-                    this.updateUiForGenerationState_(false, 'Finished.');
-                    break;
-                case 'error':
-                    this.updateUiForGenerationState_(false, `Error: ${data.message}`);
-                    break;
-            }
-        } catch (e) {
-            console.error('Failed to parse SSE event:', eventData, e);
-        }
+        // Call the central controller to handle the API call
+        this.sdController.generate(spec, this.currentSessionId);
     };
 
     /**
      * Handles a received image, adds it to the session, and creates a new frame in Piskel.
+     * This is a callback executed by the SDController.
      */
-    ns.AiGeneratorController.prototype.onImageReceive_ = function(data, session) {
+    ns.AiGeneratorController.prototype.onImageReceive_ = function(data) {
+        // Only process the image if it belongs to the session started by this controller
+        if (data.session_id !== this.currentSessionId) {
+            return;
+        }
+
+        const session = this.pixelOnController.getSessionByUuid(data.session_id);
+        if (!session) return;
+
         const fullBase64 = `data:image/png;base64,${data.image_base64}`;
         const imgUuid = this.pixelOnController.addImage(fullBase64, data.spec);
         session.addImageUuid(imgUuid);
@@ -183,8 +134,15 @@
         }.bind(this));
     };
 
+    ns.AiGeneratorController.prototype.onGenerationError_ = function(errorMessage) {
+        // The onProgress callback already updates the UI status text.
+        // We can log the error for debugging.
+        console.error("Generation Error reported to AiGeneratorController:", errorMessage);
+    };
+
     /**
      * Updates the UI to reflect the current generation state.
+     * This is a callback executed by the SDController.
      */
     ns.AiGeneratorController.prototype.updateUiForGenerationState_ = function(isGenerating, statusMessage) {
         this.isGenerating = isGenerating;
@@ -195,6 +153,8 @@
         } else {
             this.generateButton.textContent = 'Generate';
             this.generateButton.classList.remove('stop-button');
+            // Reset session ID when generation is finished or stopped
+            this.currentSessionId = null;
         }
     };
 
