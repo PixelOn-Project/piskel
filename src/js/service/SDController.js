@@ -61,18 +61,32 @@
             return;
         }
 
+        // Log the data that will be sent to the API
+        console.log("%c[SDController] Preparing to send data to AI Server:", "color: lightblue; font-weight: bold;");
+        console.log("Session ID:", sessionId);
+        console.log("Specification (spec):", spec);
+
         this.isGenerating = true;
         this.abortController = new AbortController();
         this._broadcast('onProgress', true, 'Connecting to server...');
 
         try {
+            const requestBody = {
+                session_id: sessionId,
+                spec: spec
+            };
+
+            // Log the final JSON body before sending
+            console.log("%c[SDController] Sending JSON to /api/generate:", "color: lightgreen; font-weight: bold;");
+            console.log(JSON.stringify(requestBody, null, 2));
+
+            // The actual fetch call is commented out to prevent connection errors.
+            // To re-enable, uncomment the following block.
+            /*
             const response = await fetch(`${this.baseUrl}/api/generate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    session_id: sessionId,
-                    spec: spec
-                }),
+                body: JSON.stringify(requestBody),
                 signal: this.abortController.signal
             });
 
@@ -82,6 +96,13 @@
 
             this._broadcast('onProgress', true, 'Waiting for stream data...');
             await this._processStream(response.body, sessionId);
+            */
+
+            // Simulate a successful connection for UI testing purposes
+            console.log("[SDController] Fetch is commented out. Simulating generation start...");
+            // You can uncomment the line below to simulate an error for testing
+            // throw new Error("Simulated network error");
+
 
         } catch (error) {
             if (error.name === 'AbortError') {
@@ -106,6 +127,11 @@
             this.abortController.abort(); // Abort the fetch request
         }
 
+        // Log the stop request
+        console.log("%c[SDController] Sending stop request for session:", "color: orange; font-weight: bold;", sessionId);
+
+        // The actual fetch call is commented out.
+        /*
         try {
             await fetch(`${this.baseUrl}/api/stop`, {
                 method: 'POST',
@@ -116,6 +142,7 @@
         } catch (error) {
             console.error('[SDController] Failed to send stop request:', error);
         }
+        */
         // The AbortError catch block in generate() will handle the state update.
     };
 
@@ -158,6 +185,9 @@
     ns.SDController.prototype._handleSseEvent = function (eventData) {
         try {
             const data = JSON.parse(eventData);
+            // Log received data
+            console.log("%c[SDController] Received SSE event:", "color: cyan; font-weight: bold;", data);
+
             switch (data.type) {
                 case 'image':
                     this._broadcast('onProgress', true, `Generating... (${data.current_index}/${data.total_count})`);

@@ -96,7 +96,8 @@
             n_prompt: "", // No negative prompt in the simple view
             width: currentPiskel.width,
             height: currentPiskel.height,
-            count: 1 // Generate a single image
+            count: 1,
+            presset: 'normal' // Always use 'normal' preset for the simple generator
         };
 
         // Create a temporary session for this generation
