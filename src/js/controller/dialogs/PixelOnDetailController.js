@@ -25,8 +25,14 @@
         this.negativePromptContainer = this.container.querySelector('.negative-prompt-container');
         this.negativePromptInput = this.negativePromptContainer.querySelector('.tag-input');
 
+        // Resolution
         this.widthInputEl = this.container.querySelector('.resolution-input[data-param="width"]');
         this.heightInputEl = this.container.querySelector('.resolution-input[data-param="height"]');
+        this.ratioLockButton = this.container.querySelector('.resolution-ratio-lock-button');
+        this.isRatioLocked = true;
+        this.activeResolutionInput = null;
+        this.originalRatio = 1;
+
         this.countInputEl = this.container.querySelector('.count-input');
         this.generateButton = this.container.querySelector('.generate-button');
         this.testImageButton = this.container.querySelector('.test-image-button');
@@ -93,8 +99,13 @@
         this.addEventListener(this.negativePromptContainer, 'click', this.onTagContainerClick_.bind(this));
         
         // Resolution Sync Listeners
-        this.addEventListener(this.widthInputEl, 'input', this.onResolutionChange_.bind(this, this.heightInputEl));
-        this.addEventListener(this.heightInputEl, 'input', this.onResolutionChange_.bind(this, this.widthInputEl));
+        this.addEventListener(this.ratioLockButton, 'click', this.onRatioLockClick_.bind(this));
+        this.addEventListener(this.widthInputEl, 'input', this.onResolutionChange_.bind(this));
+        this.addEventListener(this.heightInputEl, 'input', this.onResolutionChange_.bind(this));
+        this.addEventListener(this.widthInputEl, 'focus', this.onResolutionFocus_.bind(this));
+        this.addEventListener(this.heightInputEl, 'focus', this.onResolutionFocus_.bind(this));
+        this.addEventListener(this.widthInputEl, 'blur', this.updateOriginalRatio_.bind(this));
+        this.addEventListener(this.heightInputEl, 'blur', this.updateOriginalRatio_.bind(this));
 
         // 현재 조작중인 Session
         this.currentSession = null;
@@ -143,7 +154,7 @@
                 p_prompt: "",
                 n_prompt: "",
                 width: pixelOn.getWidth(),
-                height: pixelOn.getWidth(),
+                height: pixelOn.getHeight(),
                 count: pixelOn.getGenerateCount(),
                 preset: "normal" // Default preset
             }
@@ -172,6 +183,7 @@
             }
         });
         this.updatePresetStatus_();
+        this.updateOriginalRatio_();
     };
     ns.PixelOnDetailController.prototype.getSpec_ = function() {
         // spec 불러오기
@@ -444,8 +456,46 @@
         }
     };
 
-    ns.PixelOnDetailController.prototype.onResolutionChange_ = function (targetEl, event) {
-        targetEl.value = event.target.value;
+    ns.PixelOnDetailController.prototype.onResolutionFocus_ = function (event) {
+        this.activeResolutionInput = event.target;
+    };
+
+    ns.PixelOnDetailController.prototype.updateOriginalRatio_ = function () {
+        var width = parseInt(this.widthInputEl.value, 10);
+        var height = parseInt(this.heightInputEl.value, 10);
+        if (width > 0 && height > 0) {
+            this.originalRatio = width / height;
+        }
+    };
+
+    ns.PixelOnDetailController.prototype.onRatioLockClick_ = function () {
+        this.isRatioLocked = !this.isRatioLocked;
+        var button = this.ratioLockButton;
+        if (this.isRatioLocked) {
+            button.classList.remove('ratio-unlocked');
+            this.updateOriginalRatio_();
+        } else {
+            button.classList.add('ratio-unlocked');
+        }
+    };
+
+    ns.PixelOnDetailController.prototype.onResolutionChange_ = function (event) {
+        if (!this.isRatioLocked || !this.activeResolutionInput) {
+            return;
+        }
+
+        var changedInput = this.activeResolutionInput;
+        var value = parseInt(changedInput.value, 10);
+
+        if (isNaN(value) || value <= 0) {
+            return;
+        }
+
+        if (changedInput === this.widthInputEl) {
+            this.heightInputEl.value = Math.round(value / this.originalRatio);
+        } else if (changedInput === this.heightInputEl) {
+            this.widthInputEl.value = Math.round(value * this.originalRatio);
+        }
     };
 
     // =================================================================

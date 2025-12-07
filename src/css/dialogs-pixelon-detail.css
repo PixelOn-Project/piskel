@@ -754,3 +754,40 @@
     min-width: 100px;
     padding: 4px 0; /* Align with tag vertical center */
 }
+
+.resolution-ratio-lock-button {
+  /* 버튼 모양 및 크기 */
+  height: 28px;
+  width: 28px;
+  border-radius: 50%; /* 원형 버튼 */
+  background-color: #2a2a2a;
+  border: 1px solid #555;
+  cursor: pointer;
+  padding: 0;
+
+  /* 내부 텍스트(=) 중앙 정렬 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* 회전 애니메이션 */
+  transition: all 0.2s ease;
+}
+
+.resolution-ratio-lock-button span {
+  /* 텍스트 스타일 */
+  color: #E0E0E0;
+  font-family: monospace;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.resolution-ratio-lock-button:hover {
+  background-color: #3a3a3a;
+}
+
+/* ratio-unlocked 클래스가 있을 때 버튼 자체를 회전 */
+.resolution-ratio-lock-button.ratio-unlocked {
+  transform: rotate(45deg);
+}
