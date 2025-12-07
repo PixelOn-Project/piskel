@@ -91,6 +91,10 @@
         this.addEventListener(this.negativePromptInput, 'keydown', this.onTagInputKeyDown_.bind(this, this.negativePromptContainer));
         this.addEventListener(this.positivePromptContainer, 'click', this.onTagContainerClick_.bind(this));
         this.addEventListener(this.negativePromptContainer, 'click', this.onTagContainerClick_.bind(this));
+        
+        // Resolution Sync Listeners
+        this.addEventListener(this.widthInputEl, 'input', this.onResolutionChange_.bind(this, this.heightInputEl));
+        this.addEventListener(this.heightInputEl, 'input', this.onResolutionChange_.bind(this, this.widthInputEl));
 
         // 현재 조작중인 Session
         this.currentSession = null;
@@ -141,7 +145,7 @@
                 width: pixelOn.getWidth(),
                 height: pixelOn.getWidth(),
                 count: pixelOn.getGenerateCount(),
-                presset: "normal" // Default preset
+                preset: "normal" // Default preset
             }
         }
 
@@ -163,7 +167,7 @@
         // Update preset buttons
         this.presetButtons.forEach(function(button) {
             button.classList.remove('active');
-            if (button.dataset.preset === (spec.presset || "normal")) {
+            if (button.dataset.preset.toLowerCase() === (spec.preset || "normal").toLowerCase()) {
                 button.classList.add('active');
             }
         });
@@ -178,7 +182,7 @@
         const count = parseInt(this.countInputEl.value, 10);
         
         const activeButton = this.presetButtonsContainer.querySelector('.preset-button.active');
-        const presset = activeButton ? activeButton.dataset.preset : 'normal';
+        const preset = activeButton ? activeButton.dataset.preset : 'normal';
 
         return {
             p_prompt: p_prompt,
@@ -186,7 +190,7 @@
             width: width,
             height: height,
             count: count,
-            presset: presset
+            preset: preset
         };
     }
     ns.PixelOnDetailController.prototype.createHistoryBlock_ = function(session) {
@@ -438,6 +442,10 @@
         if (this.currentSession) {
             this.sdController.stop(this.currentSession.getUuid());
         }
+    };
+
+    ns.PixelOnDetailController.prototype.onResolutionChange_ = function (targetEl, event) {
+        targetEl.value = event.target.value;
     };
 
     // =================================================================
