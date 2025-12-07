@@ -3,6 +3,7 @@
 
     ns.SDController = function(baseUrl) {
         this.baseUrl = baseUrl || "http://127.0.0.1:5000";
+        this.pixelOnController = pskl.app.pixelOnController;
         this.heartbeatInterval = null;
         this.isConnected = false;
         this.isGenerating = false;
@@ -67,7 +68,7 @@
 
         this.isGenerating = true;
         this.abortController = new AbortController();
-        this._broadcast('onProgress', true, 'Connecting to server...');
+        this._broadcast('onProgress', true, 'Connecting to server...', sessionId);
 
         try {
             const requestBody = {
@@ -89,15 +90,15 @@
                 throw new Error(`Server error: ${response.status} ${response.statusText}`);
             }
 
-            this._broadcast('onProgress', true, 'Waiting for stream data...');
+            this._broadcast('onProgress', true, 'Waiting for stream data...', sessionId);
             await this._processStream(response.body, sessionId);
 
         } catch (error) {
             if (error.name === 'AbortError') {
-                this._broadcast('onProgress', false, 'Generation cancelled.');
+                this._broadcast('onProgress', false, 'Generation cancelled.', sessionId);
                 this._broadcast('onError', 'Generation cancelled.');
             } else {
-                this._broadcast('onProgress', false, `Error: ${error.message}`);
+                this._broadcast('onProgress', false, `Error: ${error.message}`, sessionId);
                 this._broadcast('onError', error.message);
             }
             this.isGenerating = false;
@@ -142,7 +143,7 @@
             const { value, done } = await reader.read();
             if (done) {
                 if (this.isGenerating) {
-                    this._broadcast('onProgress', false, 'Stream ended unexpectedly.');
+                    this._broadcast('onProgress', false, 'Stream ended unexpectedly.', sessionId);
                     this._broadcast('onError', 'Stream ended unexpectedly.');
                     this.isGenerating = false;
                 }
@@ -172,17 +173,30 @@
 
             switch (data.type) {
                 case 'image':
-                    this._broadcast('onProgress', true, `Generating... (${data.current_index}/${data.total_count})`);
+                    // 1. Save the image data to the central model first.
+                    const session = this.pixelOnController.getSessionByUuid(data.session_id);
+                    if (session) {
+                        const fullBase64 = `data:image/png;base64,${data.image_base64}`;
+                        const imgUuid = this.pixelOnController.addImage(fullBase64, data.spec);
+                        session.addImageUuid(imgUuid);
+                        // Add the new image's UUID to the data object to pass to callbacks.
+                        data.imgUuid = imgUuid;
+                    } else {
+                        console.error(`[SDController] Session not found for session_id: ${data.session_id}`);
+                    }
+
+                    // 2. Notify UI controllers.
+                    this._broadcast('onProgress', true, `Generating... (${data.current_index}/${data.total_count})`, data.session_id);
                     this._broadcast('onImage', data);
                     break;
                 case 'done':
                     this.isGenerating = false;
-                    this._broadcast('onProgress', false, `Generation finished: ${data.status}`);
+                    this._broadcast('onProgress', false, `Generation finished: ${data.status}`, data.session_id);
                     this._broadcast('onDone', data);
                     break;
                 case 'error':
                     this.isGenerating = false;
-                    this._broadcast('onProgress', false, `Server error: ${data.message}`);
+                    this._broadcast('onProgress', false, `Server error: ${data.message}`, data.session_id);
                     this._broadcast('onError', data.message);
                     break;
             }

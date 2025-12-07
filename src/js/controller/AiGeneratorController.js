@@ -69,7 +69,7 @@
             $.publish(Events.DIALOG_SHOW, { dialogId: 'pixel-on-detail' });
         } else if (action === 'generate') {
             if (this.isGenerating) {
-                // Stop generation
+                // Stop generation only if it was started by this controller
                 if (this.currentSessionId) {
                     this.sdController.stop(this.currentSessionId);
                 }
@@ -119,15 +119,13 @@
             return;
         }
 
-        const session = this.pixelOnController.getSessionByUuid(data.session_id);
-        if (!session) return;
-
-        const fullBase64 = `data:image/png;base64,${data.image_base64}`;
-        const imgUuid = this.pixelOnController.addImage(fullBase64, data.spec);
-        session.addImageUuid(imgUuid);
+        // The image is already saved in the model by SDController.
+        // We just need to create the frame.
+        const imageData = this.pixelOnController.getImage(data.imgUuid);
+        if (!imageData) return;
 
         // Immediately create a new frame with the generated image
-        pskl.utils.FrameUtils.createFromImageSrc(fullBase64, false, function(frame) {
+        pskl.utils.FrameUtils.createFromImageSrc(imageData.image, false, function(frame) {
             this.piskelController.addFrameAtCurrentIndex();
             var targetFrame = this.piskelController.getCurrentFrame();
             targetFrame.setPixels(frame.pixels);
@@ -145,13 +143,24 @@
      * Updates the UI to reflect the current generation state.
      * This is a callback executed by the SDController.
      */
-    ns.AiGeneratorController.prototype.updateUiForGenerationState_ = function(isGenerating, statusMessage) {
+    ns.AiGeneratorController.prototype.updateUiForGenerationState_ = function(isGenerating, statusMessage, sessionId) {
         this.isGenerating = isGenerating;
-        this.statusTextEl.textContent = statusMessage || '';
+
         if (isGenerating) {
-            this.generateButton.textContent = 'Stop';
-            this.generateButton.classList.add('stop-button');
+            // Check if the generation was started by this controller or another (e.g., the modal)
+            if (sessionId && this.currentSessionId === sessionId) {
+                // Generation started by this controller
+                this.statusTextEl.textContent = statusMessage || '';
+                this.generateButton.textContent = 'Stop';
+                this.generateButton.classList.add('stop-button');
+            } else {
+                // Generation started elsewhere (in the modal)
+                this.statusTextEl.textContent = 'Generating in Modal...';
+                // Do not change the button state, as it doesn't control this generation process
+            }
         } else {
+            // Generation finished or was stopped
+            this.statusTextEl.textContent = statusMessage || '';
             this.generateButton.textContent = 'Generate';
             this.generateButton.classList.remove('stop-button');
             // Reset session ID when generation is finished or stopped

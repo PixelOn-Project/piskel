@@ -457,13 +457,11 @@
         const session = this.pixelOnController.getSessionByUuid(data.session_id);
         if (!session) return;
 
-        const fullBase64 = `data:image/png;base64,${data.image_base64}`;
-        const imgUuid = this.pixelOnController.addImage(fullBase64, data.spec);
-        session.addImageUuid(imgUuid);
-
-        // Only update the UI if the received image belongs to the currently active session.
+        // The image is already saved in the model by SDController.
+        // We just need to update the UI if the dialog is open and showing the correct session.
         if (this.currentSession && session.getUuid() === this.currentSession.getUuid()) {
-            this.createImageFrame_(imgUuid, this.pixelOnController.getImage(imgUuid));
+            // Use the imgUuid passed from the modified SDController
+            this.createImageFrame_(data.imgUuid, this.pixelOnController.getImage(data.imgUuid));
         }
     };
 
@@ -615,18 +613,13 @@
     };
 
     ns.PixelOnDetailController.prototype.onCloseClick_ = function () {
-        if (this.isGenerating) {
-            this.stopGeneration_();
-        }
         this.sdController.unregisterCallbacks(this.callbackId); // Unregister callbacks
         this.closeDialog();
     }
 
     ns.PixelOnDetailController.prototype.onCloseFuncs_ = function(evt) {
         if (evt.target === this.dialogWrapper) {
-            if (this.isGenerating) {
-                this.stopGeneration_();
-            }
+            // Just close the dialog, don't stop generation.
         }
     }
 
