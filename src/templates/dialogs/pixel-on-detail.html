@@ -33,7 +33,7 @@
                         </div>
                     </div>
                     <div class="prompt-group">
-                        <label class="negative-prompt-label">Negative Prompt <span class="checkmark-icon">&#10003;</span></label>
+                        <label class="negative-prompt-label">Negative Prompt</label>
                         <div class="tag-input-container negative-prompt-container">
                             <input type="text" class="tag-input" placeholder="Add a tag and press Enter">
                         </div>
@@ -51,21 +51,42 @@
                     </div>
                     <!-- <button class="button test-image-button">Test Image</button> -->
                     <div class="generation-controls">
-                        <div class="control-group">
-                            <label>Resolution</label>
-                            <div class="resolution-inputs">
-                                <input type="number" class="resolution-input" data-param="width" value="28">
-                                <button class="resolution-ratio-lock-button" title="Lock/Unlock aspect ratio">
-                                    <span>=</span>
-                                </button>
-                                <input type="number" class="resolution-input" data-param="height" value="28">
+                        <div class="control-row">
+                            <div class="toggleable-settings-group" id="color-seed-settings">
+                                <div class="toggle-header">
+                                    <button type="button" class="toggle-arrow">▶</button>
+                                    <span class="toggle-summary"></span>
+                                </div>
+                                <div class="toggle-content" style="display: none;">
+                                    <div class="control-group">
+                                        <label>Colors</label>
+                                        <input type="number" class="colors-input" value="48">
+                                    </div>
+                                    <div class="control-group">
+                                        <label>Seed</label>
+                                        <input type="number" class="seed-input" value="-1">
+                                    </div>
+                                    <span class="color-warning-text" style="display: none;">Recommended: 8~48</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="control-group">
-                            <label>Count</label>
-                            <input type="number" class="count-input" value="16">
+                        <div class="control-row">
+                            <div class="control-group">
+                                <label>Resolution</label>
+                                <div class="resolution-inputs">
+                                    <input type="number" class="resolution-input" data-param="width" value="28">
+                                    <button class="resolution-ratio-lock-button" title="Lock/Unlock aspect ratio">
+                                        <span>X</span>
+                                    </button>
+                                    <input type="number" class="resolution-input" data-param="height" value="28">
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label>Count</label>
+                                <input type="number" class="count-input" value="16">
+                            </div>
+                            <button class="button-primary generate-button">Generate</button>
                         </div>
-                        <button class="button-primary generate-button">Generate</button>
                     </div>
                 </div>
                 <div class="result-column">

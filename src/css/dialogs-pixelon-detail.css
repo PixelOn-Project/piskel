@@ -116,6 +116,8 @@
     flex: 7;
     min-width: 0;
     border-right: 1px solid var(--text-light);
+    position: relative;
+    padding-bottom: 100px; /* Space for fixed controls */
 }
 
 .result-column {
@@ -299,11 +301,6 @@
   gap: 8px;
 }
 
-.prompt-column .checkmark-icon {
-  color: #ab47bc;
-  font-weight: bold;
-}
-
 .prompt-column .prompt-textarea {
   width: 100%;
   box-sizing: border-box;
@@ -322,12 +319,25 @@
 }
 
 .prompt-column .generation-controls {
-  margin-top: auto;
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #555;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px;
+    background-color: #424242;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.prompt-column .control-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.prompt-column .control-row .generate-button {
+    margin-left: auto;
 }
 
 .prompt-column .control-group {
@@ -359,7 +369,6 @@
 }
 
 .prompt-column .generate-button {
-  margin-left: auto;
   background-color: #555;
   border: 1px solid #777;
   color: #E0E0E0;
@@ -680,4 +689,45 @@
 
 .resolution-ratio-lock-button.ratio-unlocked {
   transform: rotate(45deg);
+}
+
+.colors-input.invalid {
+    color: yellow;
+}
+
+.color-warning-text {
+    color: yellow;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.toggleable-settings-group .toggle-header {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 4px 0;
+}
+
+.toggleable-settings-group .toggle-arrow {
+    background: transparent;
+    border: none;
+    color: #E0E0E0;
+    font-size: 10px;
+    padding-right: 8px;
+    cursor: pointer;
+}
+
+.toggleable-settings-group .toggle-summary {
+    font-size: 12px;
+    color: #bbb;
+}
+
+.toggleable-settings-group .toggle-content {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.prompt-column .seed-input {
+    width: 100px !important;
 }

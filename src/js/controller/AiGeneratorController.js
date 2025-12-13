@@ -80,6 +80,8 @@
             width: currentPiskel.width,
             height: currentPiskel.height,
             count: 1,
+            color_qunt: 48,
+            seed: -1,
             presset: 'normal'
         };
 

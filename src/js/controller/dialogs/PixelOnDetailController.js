@@ -30,11 +30,19 @@
         this.activeResolutionInput = null;
         this.originalRatio = 1;
         this.countInputEl = this.container.querySelector('.count-input');
+        this.colorsInputEl = this.container.querySelector('.colors-input');
+        this.seedInputEl = this.container.querySelector('.seed-input');
+        this.colorWarningTextEl = this.container.querySelector('.color-warning-text');
         this.generateButton = this.container.querySelector('.generate-button');
-        // this.testImageButton = this.container.querySelector('.test-image-button');
         this.presetStatusEl = this.container.querySelector('.preset-status');
         this.presetButtonsContainer = this.container.querySelector('.preset-buttons');
         this.presetButtons = this.container.querySelectorAll('.preset-button');
+
+        // Toggleable Settings
+        this.colorSeedToggle = this.container.querySelector('#color-seed-settings');
+        this.colorSeedArrow = this.colorSeedToggle.querySelector('.toggle-arrow');
+        this.colorSeedSummary = this.colorSeedToggle.querySelector('.toggle-summary');
+        this.colorSeedContent = this.colorSeedToggle.querySelector('.toggle-content');
 
         // Result Column
         this.resultsContainerEl = this.container.querySelector('.result-container');
@@ -61,10 +69,12 @@
         });
 
         // Add event listeners
+        this.addEventListener(this.colorSeedToggle.querySelector('.toggle-header'), 'click', this.onToggleColorSeedClick_.bind(this));
+        this.addEventListener(this.colorsInputEl, 'input', this.updateColorSeedSummary_.bind(this));
+        this.addEventListener(this.seedInputEl, 'input', this.updateColorSeedSummary_.bind(this));
         this.addEventListener(this.dialogWrapper, 'click', this.onCloseFuncs_, true);
         this.addEventListener(this.createSessionButton, 'click', this.onNewSessionClick_);
         this.addEventListener(this.generateButton, 'click', this.onGenerateClick_);
-        // this.addEventListener(this.testImageButton, 'click', this.onTestImageClick_.bind(this));
         this.addEventListener(this.presetButtonsContainer, 'click', this.onPresetButtonClick_.bind(this));
         this.addEventListener(this.cancelSelectButton, 'click', this.onCancelSelectClick_.bind(this));
         this.addEventListener(this.deleteSelectButton, 'click', this.onDeleteSelectClick_.bind(this));
@@ -88,6 +98,7 @@
         this.addEventListener(this.heightInputEl, 'focus', this.onResolutionFocus_.bind(this));
         this.addEventListener(this.widthInputEl, 'blur', this.updateOriginalRatio_.bind(this));
         this.addEventListener(this.heightInputEl, 'blur', this.updateOriginalRatio_.bind(this));
+        this.addEventListener(this.colorsInputEl, 'input', this.updateColorCountValidation_.bind(this));
 
         this.currentSession = null;
         this.onNewSessionClick_();
@@ -128,6 +139,8 @@
                 width: pixelOn.getWidth(),
                 height: pixelOn.getHeight(),
                 count: pixelOn.getGenerateCount(),
+                color_qunt: 48,
+                seed: -1,
                 preset: "normal"
             }
         }
@@ -145,6 +158,8 @@
         this.widthInputEl.value = spec.width;
         this.heightInputEl.value = spec.height;
         this.countInputEl.value = spec.count;
+        this.colorsInputEl.value = spec.color_qunt || 48;
+        this.seedInputEl.value = spec.seed || -1;
         this.updateSelectControls_();
         
         this.presetButtons.forEach(function(button) {
@@ -155,6 +170,8 @@
         });
         this.updatePresetStatus_();
         this.updateOriginalRatio_();
+        this.updateColorCountValidation_();
+        this.updateColorSeedSummary_();
     };
 
     ns.PixelOnDetailController.prototype.getSpec_ = function() {
@@ -163,10 +180,12 @@
         const width = parseInt(this.widthInputEl.value, 10);
         const height = parseInt(this.heightInputEl.value, 10);
         const count = parseInt(this.countInputEl.value, 10);
+        const color_qunt = parseInt(this.colorsInputEl.value, 10);
+        const seed = parseInt(this.seedInputEl.value, 10);
         const activeButton = this.presetButtonsContainer.querySelector('.preset-button.active');
         const preset = activeButton ? activeButton.dataset.preset : 'normal';
 
-        return { p_prompt, n_prompt, width, height, count, preset };
+        return { p_prompt, n_prompt, width, height, count, color_qunt, seed, preset };
     }
 
     ns.PixelOnDetailController.prototype.createHistoryBlock_ = function(session) {
@@ -211,24 +230,20 @@
     // =================================================================
     //                          Event Handlers
     // =================================================================
-    /*
-    ns.PixelOnDetailController.prototype.onTestImageClick_ = function () {
-        const spec = this.getSpec_();
-        let currentSession = this.currentSession;
-
-        if (!currentSession) {
-            currentSession = new pskl.model.pixelOn.AiSession("Test Image", spec);
-            this.pixelOnController.addSession(currentSession);
-            this.createHistoryBlock_(currentSession);
-            this.currentSession = currentSession;
-        }
-        
-        const sampleImage = this.pixelOnController.sample_data[Math.floor(Math.random() * this.pixelOnController.sample_data.length)];
-        const imgUuid = this.pixelOnController.addImage(sampleImage, spec);
-        currentSession.addImageUuid(imgUuid);
-        this.createImageFrame_(imgUuid, this.pixelOnController.getImage(imgUuid));
+    ns.PixelOnDetailController.prototype.onToggleColorSeedClick_ = function () {
+        const group = this.colorSeedToggle;
+        const isExpanded = group.classList.toggle('is-expanded');
+        this.colorSeedArrow.textContent = isExpanded ? '▼' : '▶';
+        this.colorSeedContent.style.display = isExpanded ? 'flex' : 'none';
+        this.colorSeedSummary.style.display = isExpanded ? 'none' : 'inline';
     };
-    */
+
+    ns.PixelOnDetailController.prototype.updateColorSeedSummary_ = function () {
+        const colors = this.colorsInputEl.value;
+        const seedValue = this.seedInputEl.value;
+        const seedText = (seedValue == -1) ? 'auto' : seedValue;
+        this.colorSeedSummary.textContent = `Color: ${colors} Seed: ${seedText}`;
+    };
 
     ns.PixelOnDetailController.prototype.onPresetButtonClick_ = function (evt) {
         var clickedButton = evt.target.closest('.preset-button');
@@ -406,6 +421,19 @@
             this.heightInputEl.value = Math.round(value / this.originalRatio);
         } else if (changedInput === this.heightInputEl) {
             this.widthInputEl.value = Math.round(value * this.originalRatio);
+        }
+    };
+
+    ns.PixelOnDetailController.prototype.updateColorCountValidation_ = function() {
+        const colors = parseInt(this.colorsInputEl.value, 10);
+        const isInvalid = colors > 0 && (colors < 8 || colors > 48);
+
+        if (isInvalid) {
+            this.colorsInputEl.classList.add('invalid');
+            this.colorWarningTextEl.style.display = 'inline';
+        } else {
+            this.colorsInputEl.classList.remove('invalid');
+            this.colorWarningTextEl.style.display = 'none';
         }
     };
 
