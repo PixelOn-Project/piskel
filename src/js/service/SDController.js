@@ -71,6 +71,8 @@
                 spec: spec
             };
 
+            console.log("%c[SDController] Sending API Request to /api/generate:", "color: lightblue; font-weight: bold;", JSON.stringify(requestBody, null, 2));
+
             const response = await fetch(`${this.baseUrl}/api/generate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

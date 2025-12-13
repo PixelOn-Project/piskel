@@ -64,6 +64,16 @@
                     this.sdController.stop(this.currentSessionId);
                 }
             } else {
+                var text = this.positivePromptInput.value.trim();
+                if (text) {
+                    text.split(',').forEach(tag => {
+                        if (tag.trim()) {
+                            this.addTag_(this.positivePromptContainer, tag.trim());
+                        }
+                    });
+                    this.positivePromptInput.value = '';
+                }
+
                 if (this.startGeneration_()) {
                     this.clearTags_(this.positivePromptContainer);
                 }
@@ -103,9 +113,7 @@
     };
 
     ns.AiGeneratorController.prototype.startGeneration_ = function () {
-        if (!this.currentSessionId) {
-            this.updateOrCreateSession_();
-        }
+        this.updateOrCreateSession_();
 
         var session = this.pixelOnController.getSessionByUuid(this.currentSessionId);
         if (!session || !session.getSpec().p_prompt) {

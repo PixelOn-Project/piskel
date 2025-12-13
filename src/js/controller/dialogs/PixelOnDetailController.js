@@ -243,7 +243,7 @@
         const colorsText = (colorsValue <= 0) ? 'auto' : colorsValue;
         const seedValue = this.seedInputEl.value;
         const seedText = (seedValue == -1) ? 'auto' : seedValue;
-        this.colorSeedSummary.textContent = `Color: ${colorsText} Seed: ${seedText}`;
+        this.colorSeedSummary.textContent = `Color: ${colorsText}   Seed: ${seedText}`;
     };
 
     ns.PixelOnDetailController.prototype.onPresetButtonClick_ = function (evt) {
@@ -366,7 +366,27 @@
     };
 
     ns.PixelOnDetailController.prototype.onGenerateClick_ = function () {
-        this.isGenerating ? this.stopGeneration_() : this.startGeneration_();
+        if (this.isGenerating) {
+            this.stopGeneration_();
+        } else {
+            var pText = this.positivePromptInput.value.trim();
+            if (pText) {
+                pText.split(',').forEach(tag => {
+                    if (tag.trim()) this.addTag_(this.positivePromptContainer, tag.trim());
+                });
+                this.positivePromptInput.value = '';
+            }
+
+            var nText = this.negativePromptInput.value.trim();
+            if (nText) {
+                nText.split(',').forEach(tag => {
+                    if (tag.trim()) this.addTag_(this.negativePromptContainer, tag.trim());
+                });
+                this.negativePromptInput.value = '';
+            }
+
+            this.startGeneration_();
+        }
     };
 
     ns.PixelOnDetailController.prototype.startGeneration_ = function () {
