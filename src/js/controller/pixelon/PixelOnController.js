@@ -2,7 +2,7 @@
   var ns = $.namespace('pskl.controller.pixelOn');
 
   /**
-   * PixelOn 애드온의 데이터 모델을 총괄하는 메인 컨트롤러.
+   * Main controller for the PixelOn addon, managing its data model.
    */
   ns.PixelOnController = function (pixelOn) {
     if (pixelOn) {
@@ -18,14 +18,14 @@
   };
 
   /**
-   * 새로운 PixelOn 모델로 설정
+   * Set a new PixelOn model.
    * @param {Object} pixelOn
    */
   ns.PixelOnController.prototype.setPixelOn = function(pixelOn) {
     this.pixelOn = pixelOn;
   };
 
-  ns.PixelOnController.prototype.init = function () {    
+  ns.PixelOnController.prototype.init = function () {
   };
 
   // =================================================================
@@ -35,19 +35,14 @@
       var newSession = new pskl.model.pixelOn.AiSession(spec.p_prompt, spec);
       this.addSession(newSession);
 
-      // Simulate API call and get a random sample image
       var sampleImage = this.sample_data[Math.floor(Math.random() * this.sample_data.length)];
-
       var imageUuid = this.addImage(sampleImage, spec);
       newSession.addImageUuid(imageUuid);
 
-      // Create a new frame in Piskel from the generated image
       pskl.utils.FrameUtils.createFromImageSrc(sampleImage, false, function(frame) {
           piskelController.addFrameAtCurrentIndex();
           var targetFrame = piskelController.getCurrentFrame();
           targetFrame.setPixels(frame.pixels);
-
-          // Save the state for undo/redo
           $.publish(Events.PISKEL_SAVE_STATE, {
               type: pskl.service.HistoryService.SNAPSHOT
           });
@@ -77,15 +72,10 @@
   }
   ns.PixelOnController.prototype.getSessionAt = function(index) {
     var sessions = this.getSessions();
-    if (index >= 0 && index < sessions.length) {
-      return sessions[index];
-    }
-    return null;
+    return (index >= 0 && index < sessions.length) ? sessions[index] : null;
   }
   ns.PixelOnController.prototype.getSessionByUuid = function(uuid) {
-    const sessions = this.getSessions();
-    const obj = sessions.find((session) => session.getUuid() == uuid);
-    return obj;
+    return this.getSessions().find(session => session.getUuid() == uuid);
   }
 
   // =================================================================
@@ -102,10 +92,7 @@
   };
   ns.PixelOnController.prototype.addImage = function(image, spec) {
     const uuid = pskl.utils.Uuid.generate();
-    this.pixelOn.addImage(uuid, {
-      image: image,
-      spec: spec,
-    });
+    this.pixelOn.addImage(uuid, { image, spec });
     return uuid;
   };
   ns.PixelOnController.prototype.addSession = function(session) {
@@ -129,5 +116,4 @@
       session.setName(name);
     }
   };
-   
 })();

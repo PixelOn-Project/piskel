@@ -1,62 +1,47 @@
 /* ============================================== */
-/* 0. 최상위 컨테이너 스타일 */
+/* 0. Top-level Container */
 /* ============================================== */
 .ai-generator-container {
     display: flex;
     flex-direction: column;
-    /* [수정 반영됨] 상단 10px 마진으로 구분선처럼 보이게 합니다. */
-    padding: 0 0 0 0;
-    border-bottom: 1px solid #333; /* 섹션 간 구분선 유지 */
+    padding: 0;
+    border-bottom: 1px solid #333;
 }
 
 .ai-generator-title {
-    /* [핵심 수정 1] Flexbox 컨테이너로 설정 */
     display: flex;
-    /* [핵심 수정 2] 세로(수직) 축을 기준으로 자식 요소(텍스트)를 중앙 정렬 */
     align-items: center;
-    /* [핵심 수정 3] 텍스트를 좌측에 유지 (가로 정렬 제거) */
+    justify-content: space-between; /* Align items to each end */
     text-align: left;
-
-    /* [수정 4] 패딩을 높이 확보용으로 사용하지 않고, 최소 높이와 라인 높이로 관리 */
-    padding: 4px 10px; /* 좌우 10px 패딩만 유지 */
+    padding: 4px 10px;
     margin: 0;
-
-    /* [추가] 제목이 최소한의 높이를 갖도록 설정 (예: 25px) */
     min-height: 25px;
-
     font-size: 14px;
     font-weight: bold;
     color: #FFFFFF;
     border-bottom: 1px solid #333;
 }
 
-/* ---------------------------------------------- */
-/* 2. 콘텐츠 래퍼 (Content Wrapper) 스타일 */
-/* ---------------------------------------------- */
+/* ============================================== */
+/* 2. Content Wrapper */
+/* ============================================== */
 .ai-generator-content {
     display: flex;
     flex-direction: column;
-
-    gap: 5px; /* 섹션 간 간격 수정 */
+    gap: 5px;
     margin-top: 5px;
-    padding: 0 10px; /* Add padding to the content area */
+    padding: 0 10px;
 }
 
 /* ============================================== */
-/* 3. Positive Prompt (Label & Textarea) 섹션 스타일 */
+/* 3. Positive Prompt Section */
 /* ============================================== */
-
-/* **프롬프트 영역의 부모 컨테이너** (.ai-generator-prompt-section) */
 .ai-generator-prompt-section {
-    /* [수정] 텍스트 영역에는 상하/좌우 패딩을 유지 (좌우 10px) */
     padding: 0;
-
-    /* [유지] 자식 요소(레이블, 텍스트 영역)를 세로로 나열하도록 변경 */
     flex-direction: column;
     display: flex;
 }
 
-/* AI Generator 레이블 스타일 */
 .ai-generator-label {
     font-size: 11px;
     color: #ccc;
@@ -65,18 +50,17 @@
     text-transform: uppercase;
 }
 
-/* AI Generator 텍스트 입력창 (Textarea) 스타일 */
 .ai-generator-prompt {
     width: 100%;
     padding: 5px 0;
-    text-indent: 8px; /* 텍스트 시작 위치만 조정 */
+    text-indent: 8px;
     font-family: inherit;
     font-size: 12px;
     background: #000000;
     color: #ffffff;
     border: 1px solid #ffffff;
     border-radius: 3px;
-    min-height: 100px; /* 세로 높이 (이전에 50px에서 100px로 조정 반영) */
+    min-height: 100px;
     resize: none;
 }
 
@@ -84,38 +68,31 @@
     font-size: 11px;
     color: #FFFFFF;
     margin-top: 5px;
-    min-height: 14px; /* Prevent layout shift */
+    min-height: 14px;
 }
 
 /* ============================================== */
-/* 4. Detail / Generate 버튼 섹션 스타일 */
+/* 4. Button Section */
 /* ============================================== */
-
-/* 버튼 그룹 컨테이너 (.ai-generator-buttons-bottom) */
 .ai-generator-buttons-bottom {
-    /* [핵심 수정] 버튼 영역의 패딩을 완전히 제거합니다. */
     padding: 0;
-    /* 버튼 섹션만 가로로 나열되도록 오버라이드 */
     flex-direction: row;
     display: flex;
-    gap: 0; /* 버튼 간 간격 제거 (50% 분할 유지) */
-    margin: 5px -10px 0; /* Align with container edges */
+    gap: 0;
+    margin: 5px -10px 0;
 }
-/* AI Generator 버튼 (.ai-generator-button) 스타일 */
+
 .ai-generator-button {
-    /* [수직 중앙 정렬] 버튼 내부 콘텐츠를 Flexbox로 관리 */
     display: flex;
     align-items: center;
     justify-content: center;
-
-    /* 너비 조정 및 기타 스타일 */
     padding: 15px 12px;
     margin: 0;
     font-weight: bold;
     font-size: 13px;
     flex-grow: 1;
     flex-shrink: 1;
-    flex-basis: 50%; /* 50% 너비 분할 */
+    flex-basis: 50%;
     width: auto;
     background: #3a3a3a;
     border: 1px solid #222;
@@ -128,19 +105,18 @@
 /* ================================================================== */
 /*                         TAG INPUT STYLES (AI-GENERATOR)            */
 /* ================================================================== */
-
 .ai-generator-container .tag-input-container {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-start; /* Align items to the start for multi-line */
-    gap: 4px; /* Smaller gap */
+    align-items: flex-start;
+    gap: 4px;
     background-color: #000000;
     border: 1px solid #ffffff;
     border-radius: 3px;
-    padding: 5px; /* Smaller padding */
-    min-height: 50px; /* Smaller min-height */
+    padding: 5px;
+    min-height: 50px;
     cursor: text;
-    max-height: 100px; /* Approximately 5 lines for this smaller component */
+    max-height: 100px;
     overflow-y: auto;
 }
 
@@ -149,20 +125,20 @@
     align-items: center;
     background-color: #555;
     color: #E0E0E0;
-    border-radius: 10px; /* Smaller capsule */
-    padding: 2px 8px; /* Smaller padding */
-    font-size: 12px; /* Smaller font */
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-size: 12px;
     white-space: nowrap;
-    flex-shrink: 0; /* Prevent tags from shrinking */
+    flex-shrink: 0;
 }
 
 .ai-generator-container .tag-remove-button {
-    margin-left: 6px; /* Smaller margin */
+    margin-left: 6px;
     background: none;
     border: none;
     color: #E0E0E0;
     cursor: pointer;
-    font-size: 14px; /* Smaller remove icon */
+    font-size: 14px;
     padding: 0;
     line-height: 1;
 }
@@ -173,7 +149,31 @@
     border: none;
     outline: none;
     color: #E0E0E0;
-    font-size: 12px; /* Smaller font */
-    min-width: 80px; /* Smaller min-width */
-    padding: 2px 0; /* Align with tag vertical center */
+    font-size: 12px;
+    min-width: 80px;
+    padding: 2px 0;
+}
+
+/* ================================================================== */
+/*                         HELP BUTTON                                */
+/* ================================================================== */
+.pixelon-help-button {
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background-color: #555;
+    border: 1px solid #888;
+    color: #fff;
+    font-weight: bold;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    transition: background-color 0.2s ease;
+}
+
+.pixelon-help-button:hover {
+    background-color: #777;
 }

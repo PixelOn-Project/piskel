@@ -1,5 +1,4 @@
 .dialog-content {
-    /* Header 높이(50px)에 맞게 조정 */
     position: absolute;
     top: 50px;
     bottom: 0;
@@ -9,31 +8,28 @@
 }
 
 .dialog-head {
-    /* 원본 padding을 0으로 설정하고 flex를 통해 정렬 */
     width: 100%;
     background: var(--highlight-color);
     margin: 0;
     padding: 0 10px;
     color: black;
     font-size: 1.8em;
-    height: 50px; /* 최종 Header 높이 50px */
+    height: 50px;
     box-sizing: border-box;
     display: flex;
-    align-items: center; /* 수직 중앙 정렬 */
+    align-items: center;
     justify-content: space-between;
 }
 
 .dialog-close {
-    /* Header 높이에 맞게 조정 */
     position: static;
     line-height: 50px;
-
     margin-right: 0;
-    font-size: 28px; /* 통일된 폰트 사이즈 */
+    font-size: 28px;
     cursor: pointer;
     width: 21px;
     height: 50px;
-    color: var(--text-dark); /* 폰트 색상 */
+    color: var(--text-dark);
     background: transparent;
     border: none;
 }
@@ -43,16 +39,12 @@
     --bg-medium: #404040;
     --highlight-color: #A7ABDE;
     --text-dark: #1D1D1D;
-    --text-light: #FFFFFF; /* White */
-
+    --text-light: #FFFFFF;
     --color-black: #000000;
-
-    /* 원본 UI의 희미한 테두리 색상 (가로선용) */
     --border-original-light: #757575;
     --border-original-medium: #888888;
 }
 
-/* Pixel-on-detail Dialog Styles */
 #dialog-container.pixel-on-detail {
     width: 1000px;
     height: 650px;
@@ -67,24 +59,19 @@
     overflow: hidden;
 }
 
-/* dialog-head 스타일 수정 (수직 중앙 정렬) */
 .pixel-on-detail-dialog .dialog-head {
     width: 100%;
     height: 50px;
     background-color: var(--highlight-color);
-
     display: flex;
     align-items: center;
-
     justify-content: space-between;
     padding: 0 10px;
     box-sizing: border-box;
 }
 
-/* dialog-title 스타일 수정 */
 .pixel-on-detail-dialog .dialog-title {
     line-height: 50px;
-
     font-family: "Inter-Bold", Helvetica;
     font-weight: 700;
     color: var(--text-dark);
@@ -93,12 +80,9 @@
     text-align: center;
 }
 
-
-/* dialog-close 스타일 수정 */
 .pixel-on-detail-dialog .dialog-close {
     line-height: 50px;
     position: static;
-
     font-size: 28px;
     color: var(--text-dark);
     background-color: transparent;
@@ -108,7 +92,6 @@
     height: 50px;
 }
 
-/* 3-column layout for pixel-on-detail dialog */
 .detail-columns-container {
     display: flex;
     height: 100%;
@@ -118,34 +101,29 @@
     height: 100%;
     box-sizing: border-box;
     position: relative;
-    background-color: var(--bg-medium); /* #404040 적용 */
+    background-color: var(--bg-medium);
     display: flex;
     flex-direction: column;
 }
 
-/* ========================================= */
-/* 기능별 컬럼 스타일 (너비) */
-/* ========================================= */
-
 .history-column {
-    flex: 4; /* 20% */
-    min-width: 0; /* flex item이 수축할 수 있도록 허용 */
+    flex: 4;
+    min-width: 0;
     border-right: 1px solid var(--text-light);
 }
 
 .prompt-column {
-    flex: 7; /* 35% */
+    flex: 7;
     min-width: 0;
     border-right: 1px solid var(--text-light);
 }
 
 .result-column {
-    flex: 9; /* 45% */
+    flex: 9;
     min-width: 0;
     border-right: none;
 }
 
-/* Result Column 내부 수직 분할 Wrapper */
 .result-column .result-wrapper {
     display: flex;
     flex-direction: column;
@@ -153,146 +131,96 @@
     height: 90%;
 }
 
-/* 1. Result 섹션 (80%) */
 .result-column .result-section {
-    flex: 0 0 80%; /* 수직 비율: 80% */
+    flex: 0 0 80%;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
 }
 
-/* 2. Button 섹션 (20%) */
 .result-column .button-section {
-    flex: 0 0 20%; /* 수직 비율: 20% */
+    flex: 0 0 20%;
     background-color: var(--bg-medium);
-
-    /* Result 섹션과의 경계선: White 적용 */
     border-top: 1px solid var(--text-light);
 }
 
-/* .so-what을 Button 섹션 전체로 확장 (수평 비율 적용) */
 .result-column .button-section .so-what {
     position: relative;
     width: 100%;
     height: 100%;
     border-top: none;
-
     display: flex;
     align-items: center;
-    /* 수평 정렬을 위해 justify-content: space-between 대신 flex-start를 사용하고
-       각 flex item을 개별적으로 중앙 정렬합니다. */
     justify-content: flex-start;
-    padding: 0 10px; /* 👈 이 부분을 수정합니다. */
-    box-sizing: border-box; /* 👈 패딩이 너비에 포함되도록 추가합니다. */
+    padding: 0 10px;
+    box-sizing: border-box;
 }
 
-/* ========================================= */
-/* 가로 구역 테두리: 원본 색상으로 복구 */
-/* ========================================= */
-
-.title-3 { /* History Header 하단 */
+.title-3 {
     border-bottom: 2px solid var(--border-original-light);
 }
 
-.history-log { /* History Log 하단 */
+.history-log {
     border-bottom: 1px solid var(--border-original-medium);
 }
 
-.title { /* Result Header 하단 */
+.title {
     border-bottom: 1px solid var(--border-original-light);
 }
 
 .so-what {
-    /* 이 블록은 button-section .so-what보다 우선순위가 낮도록 설계됨 */
     position: relative;
     width: 100%;
     height: 100px;
     background-color: var(--bg-medium);
-    border-top: 1px solid var(--border-original-medium); /* 원본 색상 복구 */
+    border-top: 1px solid var(--border-original-medium);
     flex-shrink: 0;
-
     display: flex;
     align-items: center;
     justify-content: flex-start;
     padding: 0 10px;
 }
 
-/* ========================================= */
-/* CMD 및 액션 그룹 (60%:40% 비율 유지 및 중앙 정렬 적용) */
-/* ========================================= */
-
 .CMD {
-    /* CMD 영역 (4): 60% 공간 확보 */
-
-    /* **수정:** 60% 공간을 확보하는 Wrapper 역할을 위해 flex-basis 유지 */
     flex-basis: 60%;
     flex-grow: 0;
     flex-shrink: 0;
-
-    /* **수정:** CMD 박스를 이 60% 공간 내에서 수평 중앙 정렬하기 위해
-       추가적인 Wrapper 없이 CMD 자체를 50% 너비로 제한하고 margin: auto를 사용합니다. */
-
-    /* CMD 박스 스타일 및 중앙 정렬 */
     height: 68px;
     background-color: var(--color-black);
     border: 1px solid var(--text-light);
-
-
-    /* **핵심 수정:** CMD 박스 크기를 제한하고 중앙 정렬 */
-    width: 100%; /* flex-basis: 60%에 의해 제한됨 */
-    max-width: 250px; /* CMD 박스 자체의 최대 너비를 250px로 제한 */
-    margin: 0 auto; /* 60% 구역 내에서 수평 중앙 정렬 */
-
-    /* 내부 콘텐츠 중앙 정렬 (이전 Flex 속성 제거) */
+    width: 100%;
+    max-width: 250px;
+    margin: 0 auto;
     display: flex;
     justify-content: center;
     align-items: center;
-
     padding: 0 15px;
     text-align: center;
     position: relative;
 }
 
-
-/* CMD와 버튼 그룹 사이의 세로 구분선 (White 유지) */
-/* **수정:** CMD::after의 위치를 CMD 박스 대신 60% 공간의 끝에 맞추기 위해
-   CMD의 부모인 .so-what에 ::after를 적용합니다. (HTML 구조를 건드릴 수 없으므로 이 부분이 복잡합니다.)
-   가장 간단하게 CMD 박스 옆에 세로선을 유지하는 코드를 사용합니다. */
 .CMD::after {
     content: '';
     position: absolute;
     top: 15%;
     bottom: 15%;
-
-    /* CMD 박스 자체의 끝이 아닌, 60% 구역의 경계에 오도록 계산 */
-    left: 100%; /* CMD 박스 끝에 위치 */
-    transform: translateX(-50%); /* 정확한 위치 조정을 위해 -50% 이동 */
-
+    left: 100%;
+    transform: translateX(-50%);
     width: 1px;
     background-color: var(--text-light);
-    z-index: 10; /* 버튼 그룹 위에 표시되도록 */
+    z-index: 10;
 }
 
 .result-actions-group {
-    /* 버튼 그룹 (3): 40% 공간 확보 및 중앙 정렬 */
     display: flex;
-    flex-direction: column; /* 세로 나열 유지 */
-
-    flex-basis: 40%; /* 40% 비율 유지 */
+    flex-direction: column;
+    flex-basis: 40%;
     flex-grow: 0;
     flex-shrink: 0;
-
-    /* 수평 중앙 정렬 (40% 구역의 중앙) */
     align-items: center;
-    /* 수직 중앙 정렬 */
     justify-content: center;
     gap: 5px;
 }
-
-
-/* ================================================================== */
-/*                     HISTORY COLUMN STYLES (CORRECTED)              */
-/* ================================================================== */
 
 .title-3 {
   border-bottom: 1px solid #ffffff;
@@ -331,26 +259,19 @@
   background-color: #777;
   color: white;
 }
-/* ================================================================== */
-/*                      PROMPT COLUMN STYLES (CORRECTED)              */
-/* ================================================================== */
 
-/* Main container for the prompt column */
 .prompt-column {
   display: flex;
   flex-direction: column;
-  gap: 16px; /* Spacing between prompt groups, palette, etc. */
+  gap: 16px;
   background-color: #424242;
   border-radius: 6px;
   padding: 12px;
 }
 
-/* Header for the column ("Prompts & Setting") */
-/* 수정:.prompt-column과.panel-header 사이에 공백(space) 추가 */
 .prompt-column .panel-header {
   border-bottom: 1px solid #ffffff;
   padding-bottom: 8px;
-
 }
 
 .prompt-column .panel-header h2 {
@@ -360,8 +281,6 @@
   color: #E0E0E0;
 }
 
-/* Styling for each prompt section (Positive and Negative) */
-/* 수정:.prompt-column과.prompt-group 사이에 공백(space) 추가 */
 .prompt-column .prompt-group {
   display: flex;
   flex-direction: column;
@@ -381,7 +300,7 @@
 }
 
 .prompt-column .checkmark-icon {
-  color: #ab47bc; /* A purple/violet color from the image */
+  color: #ab47bc;
   font-weight: bold;
 }
 
@@ -394,30 +313,23 @@
   color: #E0E0E0;
   padding: 8px;
   resize: vertical;
-  font-family: inherit; /* Use the same font as the rest of the dialog */
+  font-family: inherit;
   min-height: 80px;
 }
 
-/* Placeholder for the palette group */
 .prompt-column .palette-group {
-  /* Piskel's palette controller will be injected here. */
-  /* This ensures it has some space allocated. */
   min-height: 80px;
 }
 
-/* Container for the controls at the bottom of the column */
 .prompt-column .generation-controls {
-  /* This is the key to push the controls to the bottom */
   margin-top: auto;
-
   display: flex;
-  align-items: flex-end; /* Align items to their bottom edge */
+  align-items: flex-end;
   gap: 12px;
   padding-top: 12px;
   border-top: 1px solid #555;
 }
 
-/* Styling for individual control groups (Resolution, Count) */
 .prompt-column .control-group {
   display: flex;
   flex-direction: column;
@@ -436,7 +348,6 @@
   gap: 4px;
 }
 
-/* Styling for number inputs */
 .prompt-column input[type="number"] {
   width: 50px;
   background-color: #2a2a2a;
@@ -447,9 +358,7 @@
   padding: 4px;
 }
 
-/* Specific styling for the Generate button */
 .prompt-column .generate-button {
-  /* This pushes the button to the far right */
   margin-left: auto;
   background-color: #555;
   border: 1px solid #777;
@@ -458,14 +367,12 @@
   border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
-  
 }
 
 .prompt-column .generate-button:hover {
   background-color: #666;
 }
 
-/* History Item Layout */
 .history-item-name {
     flex: 1;
     white-space: nowrap;
@@ -488,7 +395,7 @@
 
 .history-item-menu {
     position: fixed;
-    z-index: 20001; /* 다이얼로그보다 높게 설정 */
+    z-index: 20001;
     background-color: #444;
     border: 1px solid #555;
     border-radius: 4px;
@@ -510,7 +417,7 @@
 }
 
 .history-item-action-delete {
-    color: #ff4d4d; /* 붉은색 */
+    color: #ff4d4d;
 }
 
 .history-item-menu button:hover {
@@ -518,7 +425,7 @@
 }
 
 .history-item-name-input {
-    width: calc(100% - 10px); /* 패딩 고려 */
+    width: calc(100% - 10px);
     background-color: #555;
     border: 1px solid #777;
     color: white;
@@ -528,9 +435,6 @@
     box-sizing: border-box;
 }
 
-/* ================================================================== */
-/*                      RESULT COLUMN STYLES (CORRECTED)              */
-/* ================================================================== */
 .result-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -539,7 +443,7 @@
 }
 
 .result-container .image-frame {
-    position: relative; /* For overlay positioning */
+    position: relative;
     aspect-ratio: 1 / 1;
     background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAABlBMVEVMTExVVVUnhsEkAAAAHUlEQVR4AWOAAUYoQOePEAUj3v9oYDQ9gMBoegAAJFwCAbLaTIMAAAAASUVORK5CYII=');
     overflow:hidden;
@@ -601,7 +505,7 @@
 }
 
 .overlay-top {
-    flex: 7; /* 70% */
+    flex: 7;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -609,7 +513,7 @@
 }
 
 .overlay-bottom {
-    flex: 3; /* 30% */
+    flex: 3;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -638,17 +542,12 @@
     text-shadow: 0 0 8px #ff4d4d;
 }
 
-
 #new-session {
   width: auto;
 }
 .button-section .button {
   width: 100px;
 }
-
-/* ================================================================== */
-/*                         PRESET SECTION STYLES                      */
-/* ================================================================== */
 
 .preset-section {
     padding: 10px;
@@ -685,7 +584,7 @@
     border: none;
     color: white;
     padding: 8px 12px;
-    border-radius: 20px; /* 캡슐 모양 */
+    border-radius: 20px;
     cursor: pointer;
     font-weight: 500;
     transition: all 0.2s ease;
@@ -702,14 +601,10 @@
     display: block;
 }
 
-/* ================================================================== */
-/*                         TAG INPUT STYLES                           */
-/* ================================================================== */
-
 .tag-input-container {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-start; /* Align items to the start for multi-line */
+    align-items: flex-start;
     gap: 6px;
     background-color: #2a2a2a;
     border: 1px solid #555;
@@ -717,7 +612,7 @@
     padding: 8px;
     min-height: 80px;
     cursor: text;
-    max-height: 100px; /* Approximately 3 lines */
+    max-height: 100px;
     overflow-y: auto;
 }
 
@@ -726,11 +621,11 @@
     align-items: center;
     background-color: #555;
     color: #E0E0E0;
-    border-radius: 12px; /* 캡슐 모양 */
+    border-radius: 12px;
     padding: 4px 10px;
     font-size: 14px;
     white-space: nowrap;
-    flex-shrink: 0; /* Prevent tags from shrinking */
+    flex-shrink: 0;
 }
 
 .tag-remove-button {
@@ -752,30 +647,24 @@
     color: #E0E0E0;
     font-size: 14px;
     min-width: 100px;
-    padding: 4px 0; /* Align with tag vertical center */
+    padding: 4px 0;
 }
 
 .resolution-ratio-lock-button {
-  /* 버튼 모양 및 크기 */
   height: 28px;
   width: 28px;
-  border-radius: 50%; /* 원형 버튼 */
+  border-radius: 50%;
   background-color: #2a2a2a;
   border: 1px solid #555;
   cursor: pointer;
   padding: 0;
-
-  /* 내부 텍스트(=) 중앙 정렬 */
   display: flex;
   justify-content: center;
   align-items: center;
-
-  /* 회전 애니메이션 */
   transition: all 0.2s ease;
 }
 
 .resolution-ratio-lock-button span {
-  /* 텍스트 스타일 */
   color: #E0E0E0;
   font-family: monospace;
   font-size: 18px;
@@ -787,7 +676,6 @@
   background-color: #3a3a3a;
 }
 
-/* ratio-unlocked 클래스가 있을 때 버튼 자체를 회전 */
 .resolution-ratio-lock-button.ratio-unlocked {
   transform: rotate(45deg);
 }

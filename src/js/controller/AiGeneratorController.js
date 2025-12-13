@@ -1,24 +1,14 @@
-/**
- * @require Events
- */
 (function () {
     var ns = $.namespace('pskl.controller');
 
-    /**
-     * AI Generator Controller
-     * Handles user interactions within the AI Generator panel.
-     */
     ns.AiGeneratorController = function (piskelController) {
         this.piskelController = piskelController;
         this.pixelOnController = pskl.app.pixelOnController;
-        this.sdController = pskl.app.sdController; // Get SDController instance
-        this.callbackId = 'ai-generator'; // Unique ID for callbacks
-        this.currentSessionId = null; // To keep track of the session initiated by this controller
+        this.sdController = pskl.app.sdController;
+        this.callbackId = 'ai-generator';
+        this.currentSessionId = null;
     };
 
-    /**
-     * Initializes the controller.
-     */
     ns.AiGeneratorController.prototype.init = function () {
         this.container = document.querySelector('.ai-generator-container');
         if (!this.container) return;
@@ -27,10 +17,11 @@
         this.positivePromptInput = this.positivePromptContainer.querySelector('.tag-input');
         this.statusTextEl = this.container.querySelector('.status-text');
         this.generateButton = this.container.querySelector('[data-action="generate"]');
+        this.helpButton = this.container.querySelector('.pixelon-help-button');
 
-        this.isGenerating = false; // This will be managed by SDController's state
+        this.isGenerating = false;
 
-        // Register callbacks with SDController
+        // Register callbacks to update UI based on SDController state.
         this.sdController.registerCallbacks(this.callbackId, {
             onProgress: this.updateUiForGenerationState_.bind(this),
             onImage: this.onImageReceive_.bind(this),
@@ -39,19 +30,17 @@
 
         this.initButtons_();
         this.initTagInput_();
-
-        // Optional: Add a mechanism to unregister callbacks when the controller is destroyed.
-        // For simplicity, we'll leave it for now as this controller is long-lived.
     };
 
-    /**
-     * Attaches click event listeners to the buttons.
-     */
     ns.AiGeneratorController.prototype.initButtons_ = function () {
         var buttons = this.container.querySelectorAll('.ai-generator-button');
         buttons.forEach(function(button) {
             button.addEventListener('click', this.onButtonClick_.bind(this));
         }.bind(this));
+
+        if (this.helpButton) {
+            this.helpButton.addEventListener('click', this.onHelpClick_.bind(this));
+        }
     };
 
     ns.AiGeneratorController.prototype.initTagInput_ = function () {
@@ -59,9 +48,12 @@
         this.positivePromptContainer.addEventListener('click', this.onTagContainerClick_.bind(this));
     };
 
-    /**
-     * Handles all button clicks within the panel.
-     */
+    ns.AiGeneratorController.prototype.onHelpClick_ = function () {
+        var currentUrl = window.location.href;
+        var tutorialUrl = currentUrl.replace(/#.*$/, '') + 'tutorial';
+        window.open(tutorialUrl, '_blank');
+    };
+
     ns.AiGeneratorController.prototype.onButtonClick_ = function (event) {
         var action = event.currentTarget.dataset.action;
 
@@ -69,20 +61,15 @@
             $.publish(Events.DIALOG_SHOW, { dialogId: 'pixel-on-detail' });
         } else if (action === 'generate') {
             if (this.isGenerating) {
-                // Stop generation only if it was started by this controller
                 if (this.currentSessionId) {
                     this.sdController.stop(this.currentSessionId);
                 }
             } else {
-                // Start generation
                 this.startGeneration_();
             }
         }
     };
 
-    /**
-     * Starts the image generation process by calling the SDController.
-     */
     ns.AiGeneratorController.prototype.startGeneration_ = function () {
         var positivePrompt = this.getTagsAsString_(this.positivePromptContainer);
         if (!positivePrompt) {
@@ -93,38 +80,30 @@
         var currentPiskel = this.piskelController.getPiskel();
         var spec = {
             p_prompt: positivePrompt,
-            n_prompt: "", // No negative prompt in the simple view
+            n_prompt: "",
             width: currentPiskel.width,
             height: currentPiskel.height,
             count: 1,
-            presset: 'normal' // Always use 'normal' preset for the simple generator
+            presset: 'normal'
         };
 
-        // Create a temporary session for this generation
         var session = new pskl.model.pixelOn.AiSession(spec.p_prompt, spec);
         this.pixelOnController.addSession(session);
         this.currentSessionId = session.getUuid();
 
-        // Call the central controller to handle the API call
         this.sdController.generate(spec, this.currentSessionId);
     };
 
-    /**
-     * Handles a received image, adds it to the session, and creates a new frame in Piskel.
-     * This is a callback executed by the SDController.
-     */
     ns.AiGeneratorController.prototype.onImageReceive_ = function(data) {
-        // Only process the image if it belongs to the session started by this controller
+        // Process image only if it belongs to the session started by this controller.
         if (data.session_id !== this.currentSessionId) {
             return;
         }
 
-        // The image is already saved in the model by SDController.
-        // We just need to create the frame.
         const imageData = this.pixelOnController.getImage(data.imgUuid);
         if (!imageData) return;
 
-        // Immediately create a new frame with the generated image
+        // Create a new frame with the generated image.
         pskl.utils.FrameUtils.createFromImageSrc(imageData.image, false, function(frame) {
             this.piskelController.addFrameAtCurrentIndex();
             var targetFrame = this.piskelController.getCurrentFrame();
@@ -134,36 +113,26 @@
     };
 
     ns.AiGeneratorController.prototype.onGenerationError_ = function(errorMessage) {
-        // The onProgress callback already updates the UI status text.
-        // We can log the error for debugging.
         console.error("Generation Error reported to AiGeneratorController:", errorMessage);
     };
 
-    /**
-     * Updates the UI to reflect the current generation state.
-     * This is a callback executed by the SDController.
-     */
     ns.AiGeneratorController.prototype.updateUiForGenerationState_ = function(isGenerating, statusMessage, sessionId) {
         this.isGenerating = isGenerating;
 
         if (isGenerating) {
-            // Check if the generation was started by this controller or another (e.g., the modal)
+            // Check if the generation was started by this controller.
             if (sessionId && this.currentSessionId === sessionId) {
-                // Generation started by this controller
                 this.statusTextEl.textContent = statusMessage || '';
                 this.generateButton.textContent = 'Stop';
                 this.generateButton.classList.add('stop-button');
             } else {
-                // Generation started elsewhere (in the modal)
+                // If started elsewhere (e.g., in the modal), show a generic message.
                 this.statusTextEl.textContent = 'Generating in Modal...';
-                // Do not change the button state, as it doesn't control this generation process
             }
         } else {
-            // Generation finished or was stopped
             this.statusTextEl.textContent = statusMessage || '';
             this.generateButton.textContent = 'Generate';
             this.generateButton.classList.remove('stop-button');
-            // Reset session ID when generation is finished or stopped
             this.currentSessionId = null;
         }
     };
@@ -201,12 +170,10 @@
         var tagItem = document.createElement('div');
         tagItem.className = 'tag-item';
         tagItem.textContent = text;
-
         var removeButton = document.createElement('button');
         removeButton.className = 'tag-remove-button';
         removeButton.innerHTML = '&times;';
         tagItem.appendChild(removeButton);
-
         var input = container.querySelector('.tag-input');
         container.insertBefore(tagItem, input);
     };
@@ -216,10 +183,6 @@
     };
 
     ns.AiGeneratorController.prototype.getTagsAsString_ = function (container) {
-        var tags = [];
-        container.querySelectorAll('.tag-item').forEach(tagElement => {
-            tags.push(tagElement.firstChild.textContent.trim());
-        });
-        return tags.join(', ');
+        return Array.from(container.querySelectorAll('.tag-item')).map(tag => tag.firstChild.textContent.trim()).join(', ');
     };
 })();

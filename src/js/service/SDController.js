@@ -9,7 +9,6 @@
         this.isGenerating = false;
         this.abortController = null;
 
-        // 콜백을 저장할 객체. 이제 여러 콜백을 ID로 관리합니다.
         this.callbacks = {
             onProgress: {},
             onImage: {},
@@ -19,9 +18,9 @@
     };
 
     /**
-     * 외부 컨트롤러에서 UI 업데이트를 위한 콜백을 등록합니다.
-     * @param {String} id - 콜백을 식별하기 위한 고유 ID.
-     * @param {Object} callbacks - onProgress, onImage, onDone, onError 콜백 함수를 포함하는 객체.
+     * Register callbacks from other controllers to update the UI.
+     * @param {String} id - A unique ID to identify the callback.
+     * @param {Object} callbacks - An object containing onProgress, onImage, onDone, onError functions.
      */
     ns.SDController.prototype.registerCallbacks = function(id, callbacks) {
         if (!id) {
@@ -33,12 +32,11 @@
                 this.callbacks[key][id] = callbacks[key];
             }
         }
-        console.log("[SDController] Callbacks registered for ID:", id);
     };
 
     /**
-     * 등록된 콜백을 해제합니다.
-     * @param {String} id - 해제할 콜백의 고유 ID.
+     * Unregister a set of callbacks.
+     * @param {String} id - The unique ID of the callbacks to unregister.
      */
     ns.SDController.prototype.unregisterCallbacks = function(id) {
         if (!id) return;
@@ -47,24 +45,18 @@
                 delete this.callbacks[key][id];
             }
         }
-        console.log("[SDController] Callbacks unregistered for ID:", id);
     };
 
     /**
-     * 이미지 생성을 시작합니다.
-     * @param {Object} spec - 생성에 필요한 파라미터 (프롬프트, 크기 등)
-     * @param {String} sessionId - 현재 작업 세션 ID
+     * Start image generation.
+     * @param {Object} spec - Parameters for generation (prompts, size, etc.).
+     * @param {String} sessionId - The current session ID.
      */
     ns.SDController.prototype.generate = async function (spec, sessionId) {
         if (this.isGenerating) {
-            console.warn("[SDController] Generation is already in progress.");
             this._broadcast('onError', 'A generation is already in progress.');
             return;
         }
-
-        console.log("%c[SDController] Preparing to send data to AI Server:", "color: lightblue; font-weight: bold;");
-        console.log("Session ID:", sessionId);
-        console.log("Specification (spec):", spec);
 
         this.isGenerating = true;
         this.abortController = new AbortController();
@@ -75,9 +67,6 @@
                 session_id: sessionId,
                 spec: spec
             };
-
-            console.log("%c[SDController] Sending JSON to /api/generate:", "color: lightgreen; font-weight: bold;");
-            console.log(JSON.stringify(requestBody, null, 2));
 
             const response = await fetch(`${this.baseUrl}/api/generate`, {
                 method: 'POST',
@@ -106,17 +95,15 @@
     };
 
     /**
-     * 이미지 생성을 중단합니다.
-     * @param {String} sessionId - 중단할 세션 ID
+     * Stop image generation.
+     * @param {String} sessionId - The session ID to stop.
      */
     ns.SDController.prototype.stop = async function (sessionId) {
         if (!this.isGenerating) return;
 
         if (this.abortController) {
-            this.abortController.abort(); // Abort the fetch request
+            this.abortController.abort();
         }
-
-        console.log("%c[SDController] Sending stop request for session:", "color: orange; font-weight: bold;", sessionId);
 
         try {
             await fetch(`${this.baseUrl}/api/stop`, {
@@ -124,14 +111,13 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ session_id: sessionId })
             });
-            console.log("[SDController] Stop request sent.");
         } catch (error) {
             console.error('[SDController] Failed to send stop request:', error);
         }
     };
 
     /**
-     * SSE 스트림을 처리합니다.
+     * Process the Server-Sent Events (SSE) stream.
      * @private
      */
     ns.SDController.prototype._processStream = async function (stream, sessionId) {
@@ -163,29 +149,24 @@
     };
 
     /**
-     * 수신된 SSE 이벤트를 처리하고 콜백을 호출합니다.
+     * Handle a received SSE event and trigger callbacks.
      * @private
      */
     ns.SDController.prototype._handleSseEvent = function (eventData) {
         try {
             const data = JSON.parse(eventData);
-            console.log("%c[SDController] Received SSE event:", "color: cyan; font-weight: bold;", data);
 
             switch (data.type) {
                 case 'image':
-                    // 1. Save the image data to the central model first.
                     const session = this.pixelOnController.getSessionByUuid(data.session_id);
                     if (session) {
                         const fullBase64 = `data:image/png;base64,${data.image_base64}`;
                         const imgUuid = this.pixelOnController.addImage(fullBase64, data.spec);
                         session.addImageUuid(imgUuid);
-                        // Add the new image's UUID to the data object to pass to callbacks.
                         data.imgUuid = imgUuid;
                     } else {
                         console.error(`[SDController] Session not found for session_id: ${data.session_id}`);
                     }
-
-                    // 2. Notify UI controllers.
                     this._broadcast('onProgress', true, `Generating... (${data.current_index}/${data.total_count})`, data.session_id);
                     this._broadcast('onImage', data);
                     break;
@@ -207,7 +188,7 @@
     };
 
     /**
-     * 등록된 모든 콜백에 이벤트를 전달합니다.
+     * Broadcast an event to all registered callbacks.
      * @private
      */
     ns.SDController.prototype._broadcast = function(callbackType, ...args) {
@@ -224,7 +205,7 @@
     };
 
     // =================================================================
-    //                         Heartbeat (기존 코드)
+    //                         Heartbeat
     // =================================================================
 
     ns.SDController.prototype.startHeartbeat = function(intervalMs) {
@@ -253,15 +234,12 @@
                 headers: { "Content-Type": "application/json" }
             });
             if (response.ok && !this.isConnected) {
-                console.log("[SDController] Server connected.");
                 this.isConnected = true;
             } else if (!response.ok && this.isConnected) {
-                console.warn('[SDController] Heartbeat failed: ' + response.status);
                 this.isConnected = false;
             }
         } catch (error) {
             if (this.isConnected) {
-                console.error("[SDController] Server unreachable.");
                 this.isConnected = false;
             }
         }
