@@ -21,7 +21,6 @@
 
         this.isGenerating = false;
 
-        // Register callbacks to update UI based on SDController state.
         this.sdController.registerCallbacks(this.callbackId, {
             onProgress: this.updateUiForGenerationState_.bind(this),
             onImage: this.onImageReceive_.bind(this),
@@ -65,18 +64,15 @@
                     this.sdController.stop(this.currentSessionId);
                 }
             } else {
-                this.startGeneration_();
+                if (this.startGeneration_()) {
+                    this.clearTags_(this.positivePromptContainer);
+                }
             }
         }
     };
 
-    ns.AiGeneratorController.prototype.startGeneration_ = function () {
+    ns.AiGeneratorController.prototype.updateOrCreateSession_ = function () {
         var positivePrompt = this.getTagsAsString_(this.positivePromptContainer);
-        if (!positivePrompt) {
-            this.updateUiForGenerationState_(false, 'Prompt is empty.');
-            return;
-        }
-
         var currentPiskel = this.piskelController.getPiskel();
         var spec = {
             p_prompt: positivePrompt,
@@ -87,15 +83,39 @@
             presset: 'normal'
         };
 
-        var session = new pskl.model.pixelOn.AiSession(spec.p_prompt, spec);
-        this.pixelOnController.addSession(session);
-        this.currentSessionId = session.getUuid();
+        if (this.currentSessionId) {
+            var session = this.pixelOnController.getSessionByUuid(this.currentSessionId);
+            if (session) {
+                session.setSpec(spec);
+                session.setName(spec.p_prompt);
+            } else {
+                this.currentSessionId = null;
+            }
+        }
+        
+        if (!this.currentSessionId) {
+            var newSession = new pskl.model.pixelOn.AiSession(spec.p_prompt, spec);
+            this.pixelOnController.addSession(newSession);
+            this.currentSessionId = newSession.getUuid();
+        }
+    };
 
-        this.sdController.generate(spec, this.currentSessionId);
+    ns.AiGeneratorController.prototype.startGeneration_ = function () {
+        if (!this.currentSessionId) {
+            this.updateOrCreateSession_();
+        }
+
+        var session = this.pixelOnController.getSessionByUuid(this.currentSessionId);
+        if (!session || !session.getSpec().p_prompt) {
+            this.updateUiForGenerationState_(false, 'Prompt is empty.');
+            return false;
+        }
+
+        this.sdController.generate(session.getSpec(), this.currentSessionId);
+        return true;
     };
 
     ns.AiGeneratorController.prototype.onImageReceive_ = function(data) {
-        // Process image only if it belongs to the session started by this controller.
         if (data.session_id !== this.currentSessionId) {
             return;
         }
@@ -103,7 +123,6 @@
         const imageData = this.pixelOnController.getImage(data.imgUuid);
         if (!imageData) return;
 
-        // Create a new frame with the generated image.
         pskl.utils.FrameUtils.createFromImageSrc(imageData.image, false, function(frame) {
             this.piskelController.addFrameAtCurrentIndex();
             var targetFrame = this.piskelController.getCurrentFrame();
@@ -120,20 +139,20 @@
         this.isGenerating = isGenerating;
 
         if (isGenerating) {
-            // Check if the generation was started by this controller.
             if (sessionId && this.currentSessionId === sessionId) {
                 this.statusTextEl.textContent = statusMessage || '';
                 this.generateButton.textContent = 'Stop';
                 this.generateButton.classList.add('stop-button');
             } else {
-                // If started elsewhere (e.g., in the modal), show a generic message.
                 this.statusTextEl.textContent = 'Generating in Modal...';
             }
         } else {
             this.statusTextEl.textContent = statusMessage || '';
             this.generateButton.textContent = 'Generate';
             this.generateButton.classList.remove('stop-button');
-            this.currentSessionId = null;
+            if (sessionId === this.currentSessionId) {
+                this.currentSessionId = null;
+            }
         }
     };
 
@@ -149,11 +168,13 @@
             if (text) {
                 this.addTag_(container, text);
                 input.value = '';
+                this.updateOrCreateSession_();
             }
         } else if (event.key === 'Backspace' && input.value === '') {
             var lastTag = input.previousElementSibling;
             if (lastTag && lastTag.classList.contains('tag-item')) {
                 this.removeTag_(lastTag);
+                this.updateOrCreateSession_();
             }
         }
     };
@@ -161,6 +182,7 @@
     ns.AiGeneratorController.prototype.onTagContainerClick_ = function (event) {
         if (event.target.classList.contains('tag-remove-button')) {
             this.removeTag_(event.target.parentElement);
+            this.updateOrCreateSession_();
         } else if (event.target.classList.contains('tag-input-container')) {
             event.target.querySelector('.tag-input').focus();
         }
@@ -180,6 +202,11 @@
 
     ns.AiGeneratorController.prototype.removeTag_ = function (tagElement) {
         tagElement.parentElement.removeChild(tagElement);
+    };
+
+    ns.AiGeneratorController.prototype.clearTags_ = function (container) {
+        var tags = container.querySelectorAll('.tag-item');
+        tags.forEach(tag => this.removeTag_(tag));
     };
 
     ns.AiGeneratorController.prototype.getTagsAsString_ = function (container) {
