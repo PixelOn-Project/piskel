@@ -92,7 +92,7 @@
             count: 1,
             color_qunt: 48,
             seed: -1,
-            presset: 'normal'
+            preset: 'general'
         };
 
         if (this.currentSessionId) {

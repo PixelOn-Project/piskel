@@ -584,8 +584,9 @@
 }
 
 .preset-buttons {
-    display: flex;
-    justify-content: space-around;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
 }
 
 .preset-button {
@@ -598,6 +599,7 @@
     font-weight: 500;
     transition: all 0.2s ease;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    text-align: center;
 }
 
 .preset-button.active {

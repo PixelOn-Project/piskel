@@ -141,7 +141,7 @@
                 count: pixelOn.getGenerateCount(),
                 color_qunt: 48,
                 seed: -1,
-                preset: "normal"
+                preset: "general"
             }
         }
 
@@ -164,7 +164,7 @@
         
         this.presetButtons.forEach(function(button) {
             button.classList.remove('active');
-            if (button.dataset.preset.toLowerCase() === (spec.preset || "normal").toLowerCase()) {
+            if (button.dataset.preset.toLowerCase() === (spec.preset || "general").toLowerCase()) {
                 button.classList.add('active');
             }
         });
@@ -183,7 +183,7 @@
         const color_qunt = parseInt(this.colorsInputEl.value, 10);
         const seed = parseInt(this.seedInputEl.value, 10);
         const activeButton = this.presetButtonsContainer.querySelector('.preset-button.active');
-        const preset = activeButton ? activeButton.dataset.preset : 'normal';
+        const preset = activeButton ? activeButton.dataset.preset : 'general';
 
         return { p_prompt, n_prompt, width, height, count, color_qunt, seed, preset };
     }
