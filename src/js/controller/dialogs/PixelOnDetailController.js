@@ -239,10 +239,11 @@
     };
 
     ns.PixelOnDetailController.prototype.updateColorSeedSummary_ = function () {
-        const colors = this.colorsInputEl.value;
+        const colorsValue = this.colorsInputEl.value;
+        const colorsText = (colorsValue <= 0) ? 'auto' : colorsValue;
         const seedValue = this.seedInputEl.value;
         const seedText = (seedValue == -1) ? 'auto' : seedValue;
-        this.colorSeedSummary.textContent = `Color: ${colors} Seed: ${seedText}`;
+        this.colorSeedSummary.textContent = `Color: ${colorsText} Seed: ${seedText}`;
     };
 
     ns.PixelOnDetailController.prototype.onPresetButtonClick_ = function (evt) {
