@@ -43,10 +43,12 @@
 
       <div class="column right-column">
         @@include('templates/preview.html', {})
-        @@include('templates/layers-list.html', {})
-        @@include('templates/transformations.html', {})
-        @@include('templates/palettes-list.html', {})
-        @@include('templates/ai-generator.html',{})
+        <div class="toolbox-container-wrapper">
+          @@include('templates/layers-list.html', {})
+          @@include('templates/transformations.html', {})
+          @@include('templates/palettes-list.html', {})
+          @@include('templates/ai-generator.html',{})
+        </div>
         <div class="pull-bottom cursor-coordinates"></div>
       </div>
     </div>
