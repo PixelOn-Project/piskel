@@ -9,6 +9,9 @@
         this.isGenerating = false;
         this.abortController = null;
 
+        // 소켓 통신으로 변경, 객체 추가
+        this.socket = null;
+
         this.callbacks = {
             onProgress: {},
             onImage: {},
@@ -205,16 +208,46 @@
     };
 
     // =================================================================
-    //                         Heartbeat
+    //                         Heartbeat (Socket.IO)
     // =================================================================
 
     ns.SDController.prototype.startHeartbeat = function(intervalMs) {
         intervalMs = intervalMs || 2000;
+        var self = this;
+
+        // 1. 소켓 연결 초기화 (최초 1회)
+        if (!this.socket) {
+            // Socket.IO 클라이언트 초기화 (window.io가 로드되어 있다고 가정)
+            this.socket = io(this.baseUrl, {
+                transports: ['websocket'], // 웹소켓 우선 사용
+                reconnection: true
+            });
+
+            this.socket.on('connect', function() {
+                self.isConnected = true;
+                console.log("[SDController] Connected to server via WebSocket.");
+            });
+
+            this.socket.on('disconnect', function() {
+                self.isConnected = false;
+                console.log("[SDController] Disconnected from server.");
+            });
+        }
+
+        // 수동 연결 (혹시 끊어져 있을 경우)
+        if (this.socket.disconnected) {
+            this.socket.connect();
+        }
+
+        // 2. 주기적 신호 발송 (백업용)
         if (this.heartbeatInterval) {
             clearInterval(this.heartbeatInterval);
         }
-        var self = this;
+        
+        // 즉시 1회 전송
         this._sendHeartbeat();
+        
+        // 주기적 전송 설정
         this.heartbeatInterval = setInterval(function() {
             self._sendHeartbeat();
         }, intervalMs);
@@ -225,23 +258,18 @@
             clearInterval(this.heartbeatInterval);
             this.heartbeatInterval = null;
         }
+        
+        // 소켓 명시적 종료 (서버의 disconnect 이벤트 트리거)
+        if (this.socket) {
+            this.socket.disconnect();
+            this.isConnected = false;
+        }
     };
 
-    ns.SDController.prototype._sendHeartbeat = async function() {
-        try {
-            var response = await fetch(this.baseUrl + '/api/heartbeat', {
-                method: "POST",
-                headers: { "Content-Type": "application/json" }
-            });
-            if (response.ok && !this.isConnected) {
-                this.isConnected = true;
-            } else if (!response.ok && this.isConnected) {
-                this.isConnected = false;
-            }
-        } catch (error) {
-            if (this.isConnected) {
-                this.isConnected = false;
-            }
+    ns.SDController.prototype._sendHeartbeat = function() {
+        if (this.socket && this.socket.connected) {
+            // 데이터는 최소화하여 전송
+            this.socket.emit('heartbeat', 1);
         }
     };
 }());
