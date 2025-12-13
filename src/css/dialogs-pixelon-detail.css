@@ -595,11 +595,13 @@
     box-shadow: 0 0 8px white;
 }
 
+/*
 .test-image-button {
     width: 150px;
     margin: 10px auto;
     display: block;
 }
+*/
 
 .tag-input-container {
     display: flex;

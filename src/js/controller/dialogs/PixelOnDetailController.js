@@ -31,7 +31,7 @@
         this.originalRatio = 1;
         this.countInputEl = this.container.querySelector('.count-input');
         this.generateButton = this.container.querySelector('.generate-button');
-        this.testImageButton = this.container.querySelector('.test-image-button');
+        // this.testImageButton = this.container.querySelector('.test-image-button');
         this.presetStatusEl = this.container.querySelector('.preset-status');
         this.presetButtonsContainer = this.container.querySelector('.preset-buttons');
         this.presetButtons = this.container.querySelectorAll('.preset-button');
@@ -64,7 +64,7 @@
         this.addEventListener(this.dialogWrapper, 'click', this.onCloseFuncs_, true);
         this.addEventListener(this.createSessionButton, 'click', this.onNewSessionClick_);
         this.addEventListener(this.generateButton, 'click', this.onGenerateClick_);
-        this.addEventListener(this.testImageButton, 'click', this.onTestImageClick_.bind(this));
+        // this.addEventListener(this.testImageButton, 'click', this.onTestImageClick_.bind(this));
         this.addEventListener(this.presetButtonsContainer, 'click', this.onPresetButtonClick_.bind(this));
         this.addEventListener(this.cancelSelectButton, 'click', this.onCancelSelectClick_.bind(this));
         this.addEventListener(this.deleteSelectButton, 'click', this.onDeleteSelectClick_.bind(this));
@@ -211,6 +211,7 @@
     // =================================================================
     //                          Event Handlers
     // =================================================================
+    /*
     ns.PixelOnDetailController.prototype.onTestImageClick_ = function () {
         const spec = this.getSpec_();
         let currentSession = this.currentSession;
@@ -227,6 +228,7 @@
         currentSession.addImageUuid(imgUuid);
         this.createImageFrame_(imgUuid, this.pixelOnController.getImage(imgUuid));
     };
+    */
 
     ns.PixelOnDetailController.prototype.onPresetButtonClick_ = function (evt) {
         var clickedButton = evt.target.closest('.preset-button');
