@@ -616,7 +616,9 @@
             }
         } else if (event.key === 'Backspace' && input.value === '') {
             if (tagToDelete) {
+                var tagText = tagToDelete.firstChild.textContent.trim();
                 this.removeTag_(tagToDelete);
+                input.value = tagText + ' ';
             } else {
                 var lastTag = input.previousElementSibling;
                 if (lastTag && lastTag.classList.contains('tag-item')) {

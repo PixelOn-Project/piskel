@@ -197,7 +197,9 @@
             }
         } else if (event.key === 'Backspace' && input.value === '') {
             if (tagToDelete) {
+                var tagText = tagToDelete.firstChild.textContent.trim();
                 this.removeTag_(tagToDelete);
+                input.value = tagText + ' ';
                 this.updateOrCreateSession_();
             } else {
                 var lastTag = input.previousElementSibling;
