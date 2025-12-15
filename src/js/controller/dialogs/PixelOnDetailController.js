@@ -24,11 +24,7 @@
         this.negativePromptContainer = this.container.querySelector('.negative-prompt-container');
         this.negativePromptInput = this.negativePromptContainer.querySelector('.tag-input');
         this.widthInputEl = this.container.querySelector('.resolution-input[data-param="width"]');
-        this.heightInputEl = this.container.querySelector('.resolution-input[data-param="height"]');
-        this.ratioLockButton = this.container.querySelector('.resolution-ratio-lock-button');
-        this.isRatioLocked = true;
-        this.activeResolutionInput = null;
-        this.originalRatio = 1;
+        this.resolutionShortcuts = this.container.querySelector('.resolution-shortcuts');
         this.countInputEl = this.container.querySelector('.count-input');
         this.colorsInputEl = this.container.querySelector('.colors-input');
         this.seedInputEl = this.container.querySelector('.seed-input');
@@ -91,13 +87,7 @@
         this.addEventListener(this.negativePromptInput, 'keydown', this.onTagInputKeyDown_.bind(this, this.negativePromptContainer));
         this.addEventListener(this.positivePromptContainer, 'click', this.onTagContainerClick_.bind(this));
         this.addEventListener(this.negativePromptContainer, 'click', this.onTagContainerClick_.bind(this));
-        this.addEventListener(this.ratioLockButton, 'click', this.onRatioLockClick_.bind(this));
-        this.addEventListener(this.widthInputEl, 'input', this.onResolutionChange_.bind(this));
-        this.addEventListener(this.heightInputEl, 'input', this.onResolutionChange_.bind(this));
-        this.addEventListener(this.widthInputEl, 'focus', this.onResolutionFocus_.bind(this));
-        this.addEventListener(this.heightInputEl, 'focus', this.onResolutionFocus_.bind(this));
-        this.addEventListener(this.widthInputEl, 'blur', this.updateOriginalRatio_.bind(this));
-        this.addEventListener(this.heightInputEl, 'blur', this.updateOriginalRatio_.bind(this));
+        this.addEventListener(this.resolutionShortcuts, 'click', this.onResolutionShortcutClick_.bind(this));
         this.addEventListener(this.colorsInputEl, 'input', this.updateColorCountValidation_.bind(this));
 
         this.currentSession = null;
@@ -156,7 +146,6 @@
         });
 
         this.widthInputEl.value = spec.width;
-        this.heightInputEl.value = spec.height;
         this.countInputEl.value = spec.count;
         this.colorsInputEl.value = spec.color_qunt || 48;
         this.seedInputEl.value = spec.seed || -1;
@@ -169,7 +158,6 @@
             }
         });
         this.updatePresetStatus_();
-        this.updateOriginalRatio_();
         this.updateColorCountValidation_();
         this.updateColorSeedSummary_();
     };
@@ -178,7 +166,7 @@
         const p_prompt = this.getTagsAsString_(this.positivePromptContainer);
         const n_prompt = this.getTagsAsString_(this.negativePromptContainer);
         const width = parseInt(this.widthInputEl.value, 10);
-        const height = parseInt(this.heightInputEl.value, 10);
+        const height = parseInt(this.widthInputEl.value, 10);
         const count = parseInt(this.countInputEl.value, 10);
         const color_qunt = parseInt(this.colorsInputEl.value, 10);
         const seed = parseInt(this.seedInputEl.value, 10);
@@ -230,6 +218,13 @@
     // =================================================================
     //                          Event Handlers
     // =================================================================
+    ns.PixelOnDetailController.prototype.onResolutionShortcutClick_ = function (evt) {
+        var size = evt.target.dataset.size;
+        if (size) {
+            this.widthInputEl.value = size;
+        }
+    };
+
     ns.PixelOnDetailController.prototype.onToggleColorSeedClick_ = function () {
         const group = this.colorSeedToggle;
         const isExpanded = group.classList.toggle('is-expanded');
@@ -406,42 +401,6 @@
     ns.PixelOnDetailController.prototype.stopGeneration_ = function () {
         if (this.currentSession) {
             this.sdController.stop(this.currentSession.getUuid());
-        }
-    };
-
-    ns.PixelOnDetailController.prototype.onResolutionFocus_ = function (event) {
-        this.activeResolutionInput = event.target;
-    };
-
-    ns.PixelOnDetailController.prototype.updateOriginalRatio_ = function () {
-        var width = parseInt(this.widthInputEl.value, 10);
-        var height = parseInt(this.heightInputEl.value, 10);
-        if (width > 0 && height > 0) {
-            this.originalRatio = width / height;
-        }
-    };
-
-    ns.PixelOnDetailController.prototype.onRatioLockClick_ = function () {
-        this.isRatioLocked = !this.isRatioLocked;
-        var button = this.ratioLockButton;
-        if (this.isRatioLocked) {
-            button.classList.remove('ratio-unlocked');
-            this.updateOriginalRatio_();
-        } else {
-            button.classList.add('ratio-unlocked');
-        }
-    };
-
-    ns.PixelOnDetailController.prototype.onResolutionChange_ = function (event) {
-        if (!this.isRatioLocked || !this.activeResolutionInput) return;
-        var changedInput = this.activeResolutionInput;
-        var value = parseInt(changedInput.value, 10);
-        if (isNaN(value) || value <= 0) return;
-
-        if (changedInput === this.widthInputEl) {
-            this.heightInputEl.value = Math.round(value / this.originalRatio);
-        } else if (changedInput === this.heightInputEl) {
-            this.widthInputEl.value = Math.round(value * this.originalRatio);
         }
     };
 

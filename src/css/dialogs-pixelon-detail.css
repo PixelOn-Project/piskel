@@ -733,3 +733,22 @@
 .prompt-column .seed-input {
     width: 100px !important;
 }
+
+.resolution-shortcuts {
+  display: flex;
+  gap: 4px;
+}
+
+.shortcut-button {
+  background-color: #2a2a2a;
+  border: 1px solid #555;
+  color: #E0E0E0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.shortcut-button:hover {
+  background-color: #3a3a3a;
+}
