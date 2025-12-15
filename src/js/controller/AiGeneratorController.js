@@ -29,6 +29,16 @@
 
         this.initButtons_();
         this.initTagInput_();
+        document.addEventListener('click', this.onDocumentClick_.bind(this));
+    };
+
+    ns.AiGeneratorController.prototype.onDocumentClick_ = function (evt) {
+        if (!evt.target.closest('.tag-input-container')) {
+            var tagToDelete = this.container.querySelector('.tag-to-delete');
+            if (tagToDelete) {
+                tagToDelete.classList.remove('tag-to-delete');
+            }
+        }
     };
 
     ns.AiGeneratorController.prototype.initButtons_ = function () {
@@ -172,6 +182,8 @@
 
     ns.AiGeneratorController.prototype.onTagInputKeyDown_ = function (container, event) {
         var input = event.target;
+        var tagToDelete = container.querySelector('.tag-to-delete');
+
         if (event.key === 'Enter') {
             event.preventDefault();
             var text = input.value.trim();
@@ -180,11 +192,22 @@
                 input.value = '';
                 this.updateOrCreateSession_();
             }
+            if (tagToDelete) {
+                tagToDelete.classList.remove('tag-to-delete');
+            }
         } else if (event.key === 'Backspace' && input.value === '') {
-            var lastTag = input.previousElementSibling;
-            if (lastTag && lastTag.classList.contains('tag-item')) {
-                this.removeTag_(lastTag);
+            if (tagToDelete) {
+                this.removeTag_(tagToDelete);
                 this.updateOrCreateSession_();
+            } else {
+                var lastTag = input.previousElementSibling;
+                if (lastTag && lastTag.classList.contains('tag-item')) {
+                    lastTag.classList.add('tag-to-delete');
+                }
+            }
+        } else {
+            if (tagToDelete) {
+                tagToDelete.classList.remove('tag-to-delete');
             }
         }
     };

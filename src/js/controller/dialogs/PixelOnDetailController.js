@@ -356,8 +356,18 @@
     };
 
     ns.PixelOnDetailController.prototype.onDocumentClick_ = function (evt) {
-        if (!evt.target.closest('.history-item-actions')) this.closeAllHistoryItemMenus_();
-        if (!evt.target.closest('.image-frame')) this.closeAllImageActions_();
+        if (!evt.target.closest('.history-item-actions')) {
+            this.closeAllHistoryItemMenus_();
+        }
+        if (!evt.target.closest('.image-frame')) {
+            this.closeAllImageActions_();
+        }
+        if (!evt.target.closest('.tag-input-container')) {
+            var tagToDelete = this.container.querySelector('.tag-to-delete');
+            if (tagToDelete) {
+                tagToDelete.classList.remove('tag-to-delete');
+            }
+        }
     };
 
     ns.PixelOnDetailController.prototype.onGenerateClick_ = function () {
@@ -592,6 +602,8 @@
     // =================================================================
     ns.PixelOnDetailController.prototype.onTagInputKeyDown_ = function (container, event) {
         var input = event.target;
+        var tagToDelete = container.querySelector('.tag-to-delete');
+
         if (event.key === 'Enter') {
             event.preventDefault();
             var text = input.value.trim();
@@ -599,10 +611,21 @@
                 this.addTag_(container, text);
                 input.value = '';
             }
+            if (tagToDelete) {
+                tagToDelete.classList.remove('tag-to-delete');
+            }
         } else if (event.key === 'Backspace' && input.value === '') {
-            var lastTag = input.previousElementSibling;
-            if (lastTag && lastTag.classList.contains('tag-item')) {
-                this.removeTag_(lastTag);
+            if (tagToDelete) {
+                this.removeTag_(tagToDelete);
+            } else {
+                var lastTag = input.previousElementSibling;
+                if (lastTag && lastTag.classList.contains('tag-item')) {
+                    lastTag.classList.add('tag-to-delete');
+                }
+            }
+        } else {
+            if (tagToDelete) {
+                tagToDelete.classList.remove('tag-to-delete');
             }
         }
     };

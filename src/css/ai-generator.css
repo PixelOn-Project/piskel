@@ -132,6 +132,11 @@
     flex-shrink: 0;
 }
 
+.ai-generator-container .tag-item.tag-to-delete {
+    background-color: #ff4d4d;
+    color: white;
+}
+
 .ai-generator-container .tag-remove-button {
     margin-left: 6px;
     background: none;

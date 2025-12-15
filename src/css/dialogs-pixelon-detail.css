@@ -641,6 +641,11 @@
     flex-shrink: 0;
 }
 
+.tag-item.tag-to-delete {
+    background-color: #ff4d4d;
+    color: white;
+}
+
 .tag-remove-button {
     margin-left: 8px;
     background: none;
