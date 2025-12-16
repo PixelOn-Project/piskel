@@ -251,6 +251,7 @@
     align-items: center;
     padding: 8px;
     font-size: 14px;
+    position: relative;
 }
 .history-block.selected {
   transition: background-color 0.2s ease;
@@ -403,8 +404,10 @@
 }
 
 .history-item-menu {
-    position: fixed;
-    z-index: 20001;
+    position: absolute;
+    right: 20px;
+    bottom: 30px;
+    z-index: 10;
     background-color: #444;
     border: 1px solid #555;
     border-radius: 4px;
